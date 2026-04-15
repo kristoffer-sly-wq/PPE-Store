@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PPE Store — Normand Maximus</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0b0f14;
+  --surface: #141920;
+  --surface2:#1c2330;
+  --border:  #2a3444;
+  --accent:  #f0a500;
+  --danger:  #e03e3e;
+  --ok:      #2eb87a;
+  --warn:    #e07c3e;
+  --text:    #dde4ef;
+  --muted:   #7a8a9e;
+  --mono:    'Share Tech Mono', monospace;
+  --cond:    'Barlow Condensed', sans-serif;
+  --body:    'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.hdr {
+  background: var(--surface);
+  border-bottom: 3px solid var(--accent);
+  padding: 16px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.hdr-l { display: flex; flex-direction: column; gap: 3px; }
+.vessel {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--accent); letter-spacing: 2.5px; text-transform: uppercase;
+}
+.title {
+  font-family: var(--cond); font-size: 28px; font-weight: 900;
+  letter-spacing: 0.5px; line-height: 1;
+}
+.hdr-r {
+  text-align: right;
+}
+.date-lbl {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+}
+.date-val {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--text); margin-top: 2px;
+}
+
+/* ── SUMMARY BAR ── */
+.summary {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex; gap: 24px; overflow-x: auto;
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  scrollbar-width: none;
+}
+.summary::-webkit-scrollbar { display: none; }
+.sstat { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.dot { width: 6px; height: 6px; border-radius: 50%; }
+.dot-ok   { background: var(--ok); }
+.dot-warn { background: var(--warn); }
+.dot-crit { background: var(--danger); }
+
+/* ── SECTION ── */
+.sec-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  color: var(--accent); text-transform: uppercase;
+  padding: 20px 24px 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── SHELF GRID ── */
+.shelf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 0 24px 40px;
+}
+
+.shelf-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: flex; flex-direction: column;
+  transition: border-color .15s, transform .1s;
+  animation: fadeUp .3s ease both;
+}
+.shelf-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.shelf-card:active { transform: scale(0.98); }
+.shelf-card.has-crit { border-color: var(--danger); }
+.shelf-card.has-warn { border-color: var(--warn); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.shelf-card:nth-child(1)  { animation-delay: .04s }
+.shelf-card:nth-child(2)  { animation-delay: .08s }
+.shelf-card:nth-child(3)  { animation-delay: .12s }
+.shelf-card:nth-child(4)  { animation-delay: .16s }
+.shelf-card:nth-child(5)  { animation-delay: .20s }
+.shelf-card:nth-child(6)  { animation-delay: .24s }
+.shelf-card:nth-child(7)  { animation-delay: .28s }
+.shelf-card:nth-child(8)  { animation-delay: .32s }
+.shelf-card:nth-child(9)  { animation-delay: .36s }
+.shelf-card:nth-child(10) { animation-delay: .40s }
+.shelf-card:nth-child(11) { animation-delay: .44s }
+
+.card-top {
+  padding: 14px 16px 10px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border-bottom: 1px solid var(--border);
+}
+.card-id {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 4px;
+}
+.card-name {
+  font-family: var(--cond); font-size: 17px; font-weight: 800;
+  line-height: 1.1;
+}
+.status-pill {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 3px 8px; border-radius: 5px; white-space: nowrap;
+  margin-left: 8px; margin-top: 2px; flex-shrink: 0;
+}
+.pill-ok   { background: #2eb87a18; color: var(--ok);   border: 1px solid #2eb87a33; }
+.pill-warn { background: #e07c3e18; color: var(--warn); border: 1px solid #e07c3e33; }
+.pill-crit { background: #e03e3e18; color: var(--danger); border: 1px solid #e03e3e33; }
+.pill-load { background: #7a8a9e18; color: var(--muted); border: 1px solid #7a8a9e33; }
+
+.card-bottom {
+  padding: 10px 16px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.card-loc {
+  font-family: var(--body); font-size: 12px; color: var(--muted);
+}
+.item-pills {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;
+}
+.item-pill {
+  font-family: var(--mono); font-size: 9px;
+  padding: 2px 7px; border-radius: 4px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted);
+}
+.item-pill.low { color: var(--danger); border-color: #e03e3e33; background: #e03e3e11; }
+.item-pill.warn { color: var(--warn); border-color: #e07c3e33; background: #e07c3e11; }
+
+.card-arrow {
+  align-self: flex-end;
+  font-family: var(--mono); font-size: 11px; color: var(--accent);
+  margin-top: 4px;
+}
+
+/* ── LOADING ── */
+.loader-grid {
+  padding: 0 24px 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+.skel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  height: 120px;
+  animation: pulse 1.5s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: .4; }
+  50%       { opacity: .8; }
+}
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  display: flex; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <span class="vessel">Solstad Offshore · Normand Maximus</span>
+    <span class="title">PPE Store — 0305</span>
+  </div>
+  <div class="hdr-r">
+    <div class="date-lbl">Today</div>
+    <div class="date-val" id="dateVal">—</div>
+  </div>
+</div>
+
+<div class="summary" id="summaryBar">
+  <div class="sstat"><div class="dot dot-ok"></div> Loading shelves…</div>
+</div>
+
+<div class="sec-label">Main Deck — All Shelves</div>
+
+<div id="gridWrap">
+  <div class="loader-grid">
+    <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>PPE Store Management · Normand Maximus</span>
+  <span id="lastUpdated">—</span>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec";
+const SHELF_PAGE      = "shelf.html";
+
+const SHELVES = [
+  { id: "305-L1-CABINET-AFT",  label: "305 L1 Cabinet Aft",    loc: "Main Deck — Port Side Cabinet" },
+  { id: "305-L2-CABINET-C",    label: "305 L2 Cabinet C",      loc: "Main Deck — Centre Cabinet" },
+  { id: "305-L3-DRAWERS",      label: "305 L3 Drawers",        loc: "Main Deck — Drawer Unit" },
+  { id: "305-PPE-S-01-1-S-F",  label: "305 PPE S 01-1 S-F",   loc: "Main Deck — Shelf 01-1 Safety Footwear" },
+  { id: "305-PPE-S-01-3-A",    label: "305 PPE S 01-3 A",      loc: "Main Deck — Shelf 01-3 Rain / Workwear" },
+  { id: "305-PPE-S-02-1-S-F",  label: "305 PPE S 02-1 S-F",   loc: "Main Deck — Shelf 02-1 Coveralls" },
+  { id: "305-PPE-S-02-2-P",    label: "305 PPE S 02-2 P",      loc: "Main Deck — Shelf 02-2 Wellingtons" },
+  { id: "305-PPE-S-02-3-A",    label: "305 PPE S 02-3 A",      loc: "Main Deck — Shelf 02-3 Masks & Misc" },
+  { id: "305-PPE-S-02-4-C",    label: "305 PPE S 02-4 C",      loc: "Main Deck — Shelf 02-4 Chemical Gloves" },
+  { id: "305-PPE-S-03-1-S-F",  label: "305 PPE S 03-1 S-F",   loc: "Main Deck — Shelf 03-1 Coveralls" },
+  { id: "305-PPE-S-03-3-A",    label: "305 PPE S 03-3 A",      loc: "Main Deck — Shelf 03-3 Head & Hearing" },
+];
+
+// Per-shelf data cache
+const shelfCache = {};
+let loadedCount  = 0;
+
+function init() {
+  // Date
+  const now = new Date();
+  document.getElementById("dateVal").textContent =
+    now.toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short", year:"numeric" });
+
+  // Render skeleton cards first (clickable immediately)
+  renderCards();
+
+  // Load each shelf in parallel via JSONP
+  SHELVES.forEach(s => loadShelf(s));
+}
+
+function loadShelf(shelf) {
+  const cbName = 'cb_' + shelf.id.replace(/-/g, '_');
+  const script = document.createElement('script');
+
+  window[cbName] = function(data) {
+    script.remove();
+    delete window[cbName];
+    shelfCache[shelf.id] = data;
+    loadedCount++;
+    updateCard(shelf.id, data);
+    if (loadedCount === SHELVES.length) updateSummary();
+  };
+
+  script.src = APPS_SCRIPT_URL +
+    '?action=getShelf&id=' + encodeURIComponent(shelf.id) +
+    '&callback=' + cbName;
+  document.head.appendChild(script);
+}
+
+function totalStock(item) {
+  return Object.values(item.sizes || {}).reduce((a, b) => a + b, 0);
+}
+function itemStatus(item) {
+  const t = totalStock(item);
+  if (t === 0)         return "out";
+  if (t <= item.min)   return "crit";
+  if (t <= item.min*2) return "warn";
+  return "ok";
+}
+
+function renderCards() {
+  document.getElementById("gridWrap").innerHTML =
+    `<div class="shelf-grid">${SHELVES.map((s, i) => `
+      <a class="shelf-card" href="${SHELF_PAGE}?id=${s.id}"
+         id="card-${s.id}" style="animation-delay:${(i+1)*0.04}s">
+        <div class="card-top">
+          <div>
+            <div class="card-id">${s.id}</div>
+            <div class="card-name">${s.label}</div>
+          </div>
+          <span class="status-pill pill-load">Loading…</span>
+        </div>
+        <div class="card-bottom">
+          <div class="card-loc">${s.loc}</div>
+          <div class="item-pills" id="pills-${s.id}"></div>
+          <div class="card-arrow">VIEW SHELF →</div>
+        </div>
+      </a>`).join("")}</div>`;
+}
+
+function updateCard(shelfId, data) {
+  const card = document.getElementById('card-' + shelfId);
+  if (!card) return;
+
+  const items = data.items || [];
+  const hasCrit = items.some(i => itemStatus(i) === "crit" || itemStatus(i) === "out");
+  const hasWarn = items.some(i => itemStatus(i) === "warn");
+
+  // Border
+  card.classList.remove("has-crit", "has-warn");
+  if (hasCrit) card.classList.add("has-crit");
+  else if (hasWarn) card.classList.add("has-warn");
+
+  // Status pill
+  const pill = card.querySelector('.status-pill');
+  if (items.length === 0) {
+    pill.className = "status-pill pill-load";
+    pill.textContent = "Empty";
+  } else if (hasCrit) {
+    pill.className = "status-pill pill-crit";
+    pill.textContent = "LOW STOCK";
+  } else if (hasWarn) {
+    pill.className = "status-pill pill-warn";
+    pill.textContent = "Running low";
+  } else {
+    pill.className = "status-pill pill-ok";
+    pill.textContent = `${items.length} items`;
+  }
+
+  // Item pills
+  const pillsEl = document.getElementById('pills-' + shelfId);
+  if (pillsEl) {
+    pillsEl.innerHTML = items.slice(0, 5).map(item => {
+      const st = itemStatus(item);
+      const cls = st === "crit" || st === "out" ? "low" : st === "warn" ? "warn" : "";
+      return `<span class="item-pill ${cls}">${item.name}</span>`;
+    }).join("") + (items.length > 5 ? `<span class="item-pill">+${items.length - 5} more</span>` : "");
+  }
+}
+
+function updateSummary() {
+  let totalItems = 0, critShelves = 0, warnShelves = 0, okShelves = 0;
+
+  SHELVES.forEach(s => {
+    const data = shelfCache[s.id];
+    if (!data || !data.items) return;
+    totalItems += data.items.length;
+    const hasCrit = data.items.some(i => itemStatus(i) === "crit" || itemStatus(i) === "out");
+    const hasWarn = data.items.some(i => itemStatus(i) === "warn");
+    if (hasCrit) critShelves++;
+    else if (hasWarn) warnShelves++;
+    else okShelves++;
+  });
+
+  document.getElementById("summaryBar").innerHTML = `
+    <div class="sstat"><div class="dot dot-ok"></div> ${SHELVES.length} shelves</div>
+    <div class="sstat"><div class="dot dot-ok"></div> ${totalItems} item types total</div>
+    ${critShelves ? `<div class="sstat"><div class="dot dot-crit"></div> ${critShelves} shelves low stock</div>` : ""}
+    ${warnShelves ? `<div class="sstat"><div class="dot dot-warn"></div> ${warnShelves} shelves running low</div>` : ""}
+    <div class="sstat"><div class="dot dot-ok"></div> ${okShelves} shelves OK</div>
+  `;
+
+  document.getElementById("lastUpdated").textContent =
+    "Last refreshed: " + new Date().toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+}
+
+init();
+</script>
+</body>
+</html>
