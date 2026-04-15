@@ -489,7 +489,7 @@ const sessionLog = [];
 
 // ── INIT ──
 async function init() {
-  const isDemo = (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec");
+  const isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
 
   if (isDemo) {
     // Use demo data
@@ -675,7 +675,7 @@ async function submitIssue() {
   sessionLog.unshift(entry);
 
   // Write to Google Sheets (non-blocking)
-  const isDemo = (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec");
+  const isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
   if (!isDemo) {
     fetch(APPS_SCRIPT_URL, {
       method: "POST",
