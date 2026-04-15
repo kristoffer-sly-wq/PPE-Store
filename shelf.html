@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PPE Store — Normand Maximus</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0b0f14;
+  --surface:  #141920;
+  --surface2: #1c2330;
+  --border:   #2a3444;
+  --accent:   #f0a500;
+  --danger:   #e03e3e;
+  --ok:       #2eb87a;
+  --warn:     #e07c3e;
+  --text:     #dde4ef;
+  --muted:    #7a8a9e;
+  --mono:     'Share Tech Mono', monospace;
+  --cond:     'Barlow Condensed', sans-serif;
+  --body:     'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ── */
+.hdr {
+  background: var(--surface);
+  border-bottom: 3px solid var(--accent);
+  padding: 12px 16px 10px;
+  position: sticky; top: 0; z-index: 90;
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.hdr-l { display: flex; flex-direction: column; gap: 2px; }
+.hdr-vessel {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--accent); letter-spacing: 2.5px; text-transform: uppercase;
+}
+.hdr-shelf {
+  font-family: var(--cond); font-size: 24px; font-weight: 900;
+  letter-spacing: 0.5px; line-height: 1;
+  color: var(--text);
+}
+.hdr-r { text-align: right; }
+.hdr-tag {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+}
+.hdr-loc {
+  font-family: var(--cond); font-size: 14px; font-weight: 600;
+  color: var(--text); margin-top: 2px;
+}
+
+/* ── STATS ── */
+.stats {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex; gap: 16px; overflow-x: auto;
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+  scrollbar-width: none;
+}
+.stats::-webkit-scrollbar { display: none; }
+.stat { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.dot { width: 5px; height: 5px; border-radius: 50%; }
+.dot-ok   { background: var(--ok); }
+.dot-warn { background: var(--warn); }
+.dot-crit { background: var(--danger); }
+
+/* ── SECTION LABEL ── */
+.sec-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  color: var(--accent); text-transform: uppercase;
+  padding: 18px 16px 8px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── ITEM GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: border-color .15s, transform .1s;
+  animation: fadeUp .3s ease both;
+}
+.card:nth-child(1)  { animation-delay: .05s }
+.card:nth-child(2)  { animation-delay: .10s }
+.card:nth-child(3)  { animation-delay: .15s }
+.card:nth-child(4)  { animation-delay: .20s }
+.card:nth-child(5)  { animation-delay: .25s }
+.card:nth-child(6)  { animation-delay: .30s }
+.card:nth-child(7)  { animation-delay: .35s }
+.card:nth-child(8)  { animation-delay: .40s }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card:active { transform: scale(0.96); }
+.card:hover  { border-color: var(--accent); }
+.card.is-low { border-color: var(--danger); }
+.card.is-warn { border-color: var(--warn); }
+
+.badge {
+  position: absolute; top: 7px; right: 7px; z-index: 2;
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px; letter-spacing: .5px;
+}
+.badge-ok   { background: #2eb87a18; color: var(--ok);   border: 1px solid #2eb87a33; }
+.badge-warn { background: #e07c3e18; color: var(--warn); border: 1px solid #e07c3e33; }
+.badge-crit { background: #e03e3e18; color: var(--danger); border: 1px solid #e03e3e33; }
+.badge-out  { background: #e03e3e30; color: var(--danger); border: 1px solid #e03e3e55; }
+
+.card-img {
+  width: 100%; height: 110px;
+  background: #f4f4f0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.card-img img {
+  width: 100%; height: 100%;
+  object-fit: contain; padding: 10px;
+}
+.card-img .emoji-fb {
+  font-size: 54px; display: none;
+}
+
+.card-body { padding: 9px 11px 11px; }
+.card-brand {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  color: var(--accent); margin-bottom: 2px; text-transform: uppercase;
+}
+.card-name {
+  font-family: var(--cond); font-size: 14px; font-weight: 700;
+  line-height: 1.2; margin-bottom: 4px;
+}
+.card-stock {
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+}
+
+/* ── OVERLAY ── */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.65); z-index: 150;
+  backdrop-filter: blur(2px);
+}
+.overlay.open { display: block; }
+
+/* ── ISSUE PANEL ── */
+.panel {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 3px solid var(--accent);
+  border-radius: 16px 16px 0 0;
+  padding: 16px 16px 32px;
+  z-index: 200;
+  max-height: 88vh; overflow-y: auto;
+}
+.panel.open {
+  display: block;
+  animation: slideUp .22s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.panel-top {
+  display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-start;
+}
+.panel-thumb {
+  width: 64px; height: 64px; border-radius: 8px;
+  background: #f4f4f0; flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.panel-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.panel-thumb .emoji-fb { font-size: 34px; display: none; }
+.panel-meta { flex: 1; }
+.panel-brand {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  color: var(--accent); text-transform: uppercase; margin-bottom: 2px;
+}
+.panel-name {
+  font-family: var(--cond); font-size: 18px; font-weight: 800; line-height: 1.2;
+}
+.panel-close {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); width: 30px; height: 30px;
+  border-radius: 7px; font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.field-lbl {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
+  color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+}
+
+/* sizes */
+.size-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.sz {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 6px 12px; border-radius: 7px;
+  font-family: var(--mono); font-size: 12px; cursor: pointer;
+  transition: all .1s; position: relative;
+}
+.sz:hover, .sz.active {
+  background: var(--accent); color: #000;
+  border-color: var(--accent); font-weight: 700;
+}
+.sz.oos {
+  opacity: .3; cursor: not-allowed;
+  text-decoration: line-through;
+}
+.sz-count {
+  font-size: 9px; color: var(--muted);
+  display: block; text-align: center; margin-top: 1px;
+}
+.sz.active .sz-count { color: #0007; }
+
+/* qty */
+.qty-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.qty-lbl {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
+  color: var(--muted); text-transform: uppercase; min-width: 70px;
+}
+.qty-ctrl {
+  display: flex; align-items: center;
+  border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.qbtn {
+  background: var(--surface2); border: none; color: var(--text);
+  width: 42px; height: 42px; font-size: 22px; cursor: pointer;
+  transition: background .1s;
+}
+.qbtn:hover { background: var(--border); }
+.qval {
+  width: 52px; text-align: center;
+  font-family: var(--mono); font-size: 20px;
+  background: var(--bg); color: var(--text);
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  height: 42px; line-height: 42px;
+  pointer-events: none;
+}
+
+/* name */
+.name-inp {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border); color: var(--text);
+  padding: 11px 13px; border-radius: 8px;
+  font-family: var(--body); font-size: 14px; margin-bottom: 14px;
+}
+.name-inp:focus { outline: none; border-color: var(--accent); }
+.name-inp::placeholder { color: var(--muted); }
+
+/* submit */
+.submit {
+  width: 100%; background: var(--accent); color: #000;
+  border: none; padding: 15px; border-radius: 10px;
+  font-family: var(--cond); font-size: 17px; font-weight: 900;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  transition: opacity .1s;
+}
+.submit:active { opacity: .75; }
+
+/* ── LOG ── */
+.log-list { display: flex; flex-direction: column; gap: 6px; padding: 0 12px; }
+.log-row {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 13px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.log-item { font-family: var(--cond); font-size: 14px; font-weight: 700; }
+.log-sub  { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 2px; }
+.log-qty  { font-family: var(--mono); font-size: 15px; color: var(--danger); font-weight: 700; }
+
+.empty-log {
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  text-align: center; padding: 20px;
+  border: 1px dashed var(--border); border-radius: 8px; margin: 0 12px;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; top: 72px; left: 50%;
+  transform: translateX(-50%) translateY(-16px);
+  background: var(--ok); color: #fff;
+  padding: 9px 22px; border-radius: 8px;
+  font-family: var(--cond); font-size: 15px; font-weight: 700;
+  opacity: 0; transition: all .25s; pointer-events: none; z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.err  { background: var(--danger); }
+
+/* ── LOADING / ERROR ── */
+.loader {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 60vh; gap: 14px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-txt { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <span class="hdr-vessel">NORMAND MAXIMUS · PPE STORE</span>
+    <span class="hdr-shelf" id="hdrShelf">—</span>
+  </div>
+  <div class="hdr-r">
+    <div class="hdr-tag">Location</div>
+    <div class="hdr-loc" id="hdrLoc">—</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats" id="statsBar">
+  <div class="stat"><div class="dot dot-ok"></div> Loading…</div>
+</div>
+
+<!-- ITEMS -->
+<div class="sec-label">Items on this shelf</div>
+<div class="grid" id="itemGrid">
+  <div class="loader" style="grid-column:1/-1">
+    <div class="spinner"></div>
+    <div class="loader-txt">Loading shelf data…</div>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="sec-label" style="margin-top:10px">Issue log — today</div>
+<div id="logWrap">
+  <div class="empty-log">No issues logged yet today</div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+
+<!-- ISSUE PANEL -->
+<div class="panel" id="issuePanel">
+  <div class="panel-top">
+    <div class="panel-thumb">
+      <img id="pThumbImg" src="" alt=""
+           onerror="this.style.display='none';document.getElementById('pThumbEmoji').style.display='block'"/>
+      <span class="emoji-fb" id="pThumbEmoji"></span>
+    </div>
+    <div class="panel-meta">
+      <div class="panel-brand" id="pBrand"></div>
+      <div class="panel-name" id="pName"></div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+
+  <div class="field-lbl">Select size / variant</div>
+  <div class="size-wrap" id="sizeWrap"></div>
+
+  <div class="qty-row">
+    <span class="qty-lbl">Quantity</span>
+    <div class="qty-ctrl">
+      <button class="qbtn" onclick="changeQty(-1)">−</button>
+      <div class="qval" id="qval">1</div>
+      <button class="qbtn" onclick="changeQty(1)">+</button>
+    </div>
+  </div>
+
+  <div class="field-lbl">Your name</div>
+  <input class="name-inp" id="nameInp" type="text" placeholder="Optional — helps track issues" autocomplete="off"/>
+
+  <button class="submit" onclick="submitIssue()">✓ &nbsp;Log Issue</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG — replace APPS_SCRIPT_URL with your deployed
+// Google Apps Script Web App URL after setup
+// ═══════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE";
+
+// Get shelf ID from URL: shelf.html?id=305-L1-CABINET-AFT
+const params   = new URLSearchParams(window.location.search);
+const SHELF_ID = params.get("id") || "DEMO";
+
+// ── DEMO DATA (used when APPS_SCRIPT_URL not yet configured) ──
+const DEMO_SHELVES = {
+  "305-L1-CABINET-AFT": {
+    label: "305 L1 CABINET AFT",
+    location: "Main Deck — Port Side Cabinet",
+    items: [
+      { id: "L1-01", brand: "TEGERA", name: "873 Gloves", emoji: "🧤",
+        img: "", sizes: { "7": 21, "8": 16, "9": 83, "10": 130, "11": 18 }, min: 20 },
+      { id: "L1-02", brand: "RINGER", name: "R-Flex Cut 5 Gloves", emoji: "🧤",
+        img: "", sizes: { "9/M": 11, "10/L": 21 }, min: 5 },
+      { id: "L1-03", brand: "UVEX", name: "Safety Glasses Clear", emoji: "🥽",
+        img: "", sizes: { "One size": 61 }, min: 10 },
+      { id: "L1-04", brand: "RW", name: "Safety Specs Amber LW", emoji: "🥽",
+        img: "", sizes: { "One size": 23 }, min: 10 },
+      { id: "L1-05", brand: "TEGERA", name: "450 Gloves", emoji: "🧤",
+        img: "", sizes: { "9": 14, "10": 10, "11": 4 }, min: 5 },
+      { id: "L1-06", brand: "GRANBERG", name: "Vibration Gloves", emoji: "🧤",
+        img: "", sizes: { "9/L": 8, "10/XL": 12 }, min: 3 },
+    ]
+  },
+  "305-L2-CABINET-C": {
+    label: "305 L2 CABINET C",
+    location: "Main Deck — Centre Cabinet",
+    items: [
+      { id: "L2-01", brand: "3M DBI-SALA", name: "Hard Hat Tether", emoji: "🪝",
+        img: "", sizes: { "One size": 20 }, min: 5 },
+      { id: "L2-02", brand: "BOLLÉ", name: "Cleaning Tissues B100", emoji: "🧹",
+        img: "", sizes: { "Pack": 2 }, min: 3 },
+      { id: "L2-03", brand: "RW", name: "Safety Goggles Clear", emoji: "🥽",
+        img: "", sizes: { "One size": 28 }, min: 8 },
+      { id: "L2-04", brand: "GENERIC", name: "Tool Lanyard 1kg 35-80cm", emoji: "🪝",
+        img: "", sizes: { "One size": 10 }, min: 5 },
+    ]
+  },
+  "305-PPE-S-01-1-S-F": {
+    label: "305 PPE S 01-1 S-F",
+    location: "Main Deck — Shelf 01-1 Safety Footwear",
+    items: [
+      { id: "S1-01", brand: "PETROKING", name: "Pull-On Boot 8\"", emoji: "🥾",
+        img: "", sizes: { "38": 7, "43": 4, "48": 2 }, min: 2 },
+      { id: "S1-02", brand: "PETROKING", name: "XT Oxford Shoe", emoji: "👟",
+        img: "", sizes: { "36":2,"37":2,"38":6,"39":6,"40":2,"41":1,"42":1,"45":1,"47":2,"48":2 }, min: 2 },
+      { id: "S1-03", brand: "UVEX", name: "2 Macsole S3 Low", emoji: "👟",
+        img: "", sizes: { "43": 2, "46": 2 }, min: 2 },
+      { id: "S1-04", brand: "RW", name: "ShieldLite Trainer", emoji: "👟",
+        img: "", sizes: { "41": 2, "44": 4, "45": 2, "46": 1 }, min: 2 },
+    ]
+  },
+  "305-PPE-S-02-2-P": {
+    label: "305 PPE S 02-2 P",
+    location: "Main Deck — Shelf 02-2 Wellingtons",
+    items: [
+      { id: "W1-01", brand: "DUNLOP", name: "Protomaster S5 Wellington", emoji: "🥾",
+        img: "",
+        sizes: { "36":2,"37":3,"38":4,"39":6,"40":3,"41":3,"42":2,"43":4,"44":8,"45":4,"46":1,"47":2,"48":2 },
+        min: 2 },
+    ]
+  }
+};
+
+// ── STATE ──
+let shelfData  = null;
+let activeItem = null;
+let activeSize = null;
+let qty        = 1;
+const sessionLog = [];
+
+// ── INIT ──
+async function init() {
+  const isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
+
+  if (isDemo) {
+    // Use demo data
+    const demo = DEMO_SHELVES[SHELF_ID] || DEMO_SHELVES["305-L1-CABINET-AFT"];
+    shelfData = demo;
+    render();
+    return;
+  }
+
+  try {
+    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getShelf&id=${encodeURIComponent(SHELF_ID)}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    shelfData = data;
+    render();
+  } catch (e) {
+    document.getElementById("itemGrid").innerHTML =
+      `<div class="loader" style="grid-column:1/-1">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--danger);text-align:center;padding:20px">
+          ⚠ Could not load shelf data.<br><br>${e.message}
+        </div>
+      </div>`;
+  }
+}
+
+// ── RENDER ──
+function render() {
+  document.getElementById("hdrShelf").textContent = shelfData.label;
+  document.getElementById("hdrLoc").textContent   = shelfData.location;
+  renderStats();
+  renderGrid();
+  renderLog();
+}
+
+function totalStock(item) {
+  return Object.values(item.sizes).reduce((a, b) => a + b, 0);
+}
+function stockLevel(item) {
+  const t = totalStock(item);
+  if (t === 0)         return "out";
+  if (t <= item.min)   return "crit";
+  if (t <= item.min*2) return "warn";
+  return "ok";
+}
+
+function renderStats() {
+  const items = shelfData.items;
+  const out   = items.filter(i => stockLevel(i) === "out").length;
+  const crit  = items.filter(i => stockLevel(i) === "crit").length;
+  const warn  = items.filter(i => stockLevel(i) === "warn").length;
+  document.getElementById("statsBar").innerHTML = `
+    <div class="stat"><div class="dot dot-ok"></div> ${items.length} item types</div>
+    ${crit ? `<div class="stat"><div class="dot dot-crit"></div> ${crit} low stock</div>` : ""}
+    ${out  ? `<div class="stat"><div class="dot dot-crit"></div> ${out} out of stock</div>` : ""}
+    ${warn ? `<div class="stat"><div class="dot dot-warn"></div> ${warn} running low</div>` : ""}
+    <div class="stat"><div class="dot dot-ok"></div> ${sessionLog.length} issued today</div>
+  `;
+}
+
+function renderGrid() {
+  document.getElementById("itemGrid").innerHTML = shelfData.items.map((item, i) => {
+    const lvl   = stockLevel(item);
+    const total = totalStock(item);
+    const badgeTxt  = lvl === "out"  ? "OUT OF STOCK"
+                    : lvl === "crit" ? `LOW — ${total} left`
+                    : lvl === "warn" ? `${total} left`
+                    : `${total} in stock`;
+    const badgeCls  = lvl === "out" || lvl === "crit" ? "badge-crit"
+                    : lvl === "warn" ? "badge-warn" : "badge-ok";
+    const cardCls   = lvl === "crit" || lvl === "out" ? "is-low"
+                    : lvl === "warn" ? "is-warn" : "";
+    const imgHtml = item.img
+      ? `<img src="${item.img}" alt="${item.name}"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+         <span class="emoji-fb" style="display:none">${item.emoji}</span>`
+      : `<span class="emoji-fb" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%">${item.emoji}</span>`;
+    return `
+      <div class="card ${cardCls}" onclick="openPanel('${item.id}')">
+        <span class="badge ${badgeCls}">${badgeTxt}</span>
+        <div class="card-img">${imgHtml}</div>
+        <div class="card-body">
+          <div class="card-brand">${item.brand}</div>
+          <div class="card-name">${item.name}</div>
+          <div class="card-stock">${total} in stock</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ── PANEL ──
+function openPanel(itemId) {
+  activeItem = shelfData.items.find(i => i.id === itemId);
+  activeSize = null; qty = 1;
+
+  // thumb
+  const tImg   = document.getElementById("pThumbImg");
+  const tEmoji = document.getElementById("pThumbEmoji");
+  if (activeItem.img) {
+    tImg.src = activeItem.img; tImg.style.display = "block";
+    tEmoji.style.display = "none";
+  } else {
+    tImg.style.display = "none";
+    tEmoji.textContent = activeItem.emoji; tEmoji.style.display = "block";
+  }
+  document.getElementById("pBrand").textContent = activeItem.brand;
+  document.getElementById("pName").textContent  = activeItem.name;
+  document.getElementById("qval").textContent   = 1;
+  document.getElementById("nameInp").value       = "";
+
+  // sizes
+  const entries = Object.entries(activeItem.sizes);
+  document.getElementById("sizeWrap").innerHTML = entries.map(([sz, cnt]) => {
+    const oos = cnt === 0;
+    return `
+      <button class="sz ${oos ? "oos" : ""}"
+              onclick="${oos ? "" : `selectSize(this,'${sz}')`}"
+              ${oos ? "disabled" : ""}>
+        ${sz}
+        <span class="sz-count">${cnt === 0 ? "out" : cnt + " left"}</span>
+      </button>`;
+  }).join("");
+
+  // auto-select if only one non-empty size
+  const available = entries.filter(([,c]) => c > 0);
+  if (available.length === 1) {
+    activeSize = available[0][0];
+    document.querySelector(".sz:not(.oos)")?.classList.add("active");
+  }
+
+  document.getElementById("issuePanel").classList.add("open");
+  document.getElementById("overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closePanel() {
+  document.getElementById("issuePanel").classList.remove("open");
+  document.getElementById("overlay").classList.remove("open");
+  document.body.style.overflow = "";
+  activeItem = null; activeSize = null; qty = 1;
+}
+
+function selectSize(btn, sz) {
+  document.querySelectorAll(".sz").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  activeSize = sz;
+  qty = 1; document.getElementById("qval").textContent = 1;
+}
+
+function changeQty(d) {
+  const max = (activeItem && activeSize) ? (activeItem.sizes[activeSize] || 1) : 20;
+  qty = Math.max(1, Math.min(qty + d, max));
+  document.getElementById("qval").textContent = qty;
+}
+
+async function submitIssue() {
+  if (!activeSize) { toast("Select a size first", true); return; }
+  const avail = activeItem.sizes[activeSize];
+  if (avail < qty) { toast(`Only ${avail} available in size ${activeSize}`, true); return; }
+
+  const name    = document.getElementById("nameInp").value.trim() || "—";
+  const now     = new Date();
+  const timeStr = now.toLocaleTimeString("en-GB", { hour:"2-digit", minute:"2-digit" });
+
+  // Deduct locally
+  activeItem.sizes[activeSize] -= qty;
+
+  const entry = {
+    shelf:    SHELF_ID,
+    itemId:   activeItem.id,
+    itemName: `${activeItem.brand} ${activeItem.name}`,
+    size:     activeSize,
+    qty,
+    name,
+    time:     timeStr,
+    date:     now.toISOString().slice(0,10)
+  };
+  sessionLog.unshift(entry);
+
+  // Write to Google Sheets (non-blocking)
+  const isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
+  if (!isDemo) {
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "logIssue", ...entry })
+    }).catch(console.error);
+  }
+
+  const msg = `${qty}× ${activeItem.brand} ${activeItem.name} · Size ${activeSize}`;
+  closePanel();
+  renderGrid();
+  renderStats();
+  renderLog();
+  toast(msg);
+}
+
+function renderLog() {
+  const w = document.getElementById("logWrap");
+  if (!sessionLog.length) {
+    w.innerHTML = '<div class="empty-log">No issues logged yet today</div>';
+    return;
+  }
+  w.innerHTML = `<div class="log-list">${sessionLog.map(e => `
+    <div class="log-row">
+      <div>
+        <div class="log-item">${e.itemName}</div>
+        <div class="log-sub">Size ${e.size} · ${e.name} · ${e.time}</div>
+      </div>
+      <div class="log-qty">−${e.qty}</div>
+    </div>`).join("")}</div>`;
+}
+
+function toast(msg, err = false) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast" + (err ? " err" : "");
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2800);
+}
+
+init();
+</script>
+</body>
+</html>
