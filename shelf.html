@@ -414,7 +414,7 @@ body {
 // CONFIG — replace APPS_SCRIPT_URL with your deployed
 // Google Apps Script Web App URL after setup
 // ═══════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec";
 
 // Get shelf ID from URL: shelf.html?id=305-L1-CABINET-AFT
 const params   = new URLSearchParams(window.location.search);
@@ -489,7 +489,7 @@ const sessionLog = [];
 
 // ── INIT ──
 async function init() {
-  const isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
+  const isDemo = (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec");
 
   if (isDemo) {
     // Use demo data
@@ -670,7 +670,7 @@ async function submitIssue() {
   sessionLog.unshift(entry);
 
   // Write to Google Sheets (non-blocking)
-  const isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
+  const isDemo = (APPS_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec");
   if (!isDemo) {
     fetch(APPS_SCRIPT_URL, {
       method: "POST",
