@@ -499,20 +499,25 @@ async function init() {
     return;
   }
 
-  try {
-    const res  = await fetch(`${APPS_SCRIPT_URL}?action=getShelf&id=${encodeURIComponent(SHELF_ID)}`);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    shelfData = data;
-    render();
-  } catch (e) {
-    document.getElementById("itemGrid").innerHTML =
-      `<div class="loader" style="grid-column:1/-1">
-        <div style="font-family:var(--mono);font-size:11px;color:var(--danger);text-align:center;padding:20px">
-          ⚠ Could not load shelf data.<br><br>${e.message}
-        </div>
-      </div>`;
-  }
+  // JSONP to bypass CORS with Google Apps Script
+  const cbName = 'ppe_' + Date.now();
+  const script = document.createElement('script');
+  const timer  = setTimeout(() => {
+    document.getElementById('itemGrid').innerHTML =
+      '<div class="loader" style="grid-column:1/-1"><div style="font-family:var(--mono);font-size:11px;color:var(--danger);text-align:center;padding:30px">⚠ Could not load shelf data.<br><br>Check network connection.</div></div>';
+    script.remove();
+  }, 10000);
+  window[cbName] = function(data) {
+    clearTimeout(timer); script.remove(); delete window[cbName];
+    if (data.error) {
+      document.getElementById('itemGrid').innerHTML =
+        '<div class="loader" style="grid-column:1/-1"><div style="font-family:var(--mono);font-size:11px;color:var(--danger);text-align:center;padding:30px">⚠ ' + data.error + '</div></div>';
+      return;
+    }
+    shelfData = data; render();
+  };
+  script.src = APPS_SCRIPT_URL + '?action=getShelf&id=' + encodeURIComponent(SHELF_ID) + '&callback=' + cbName;
+  document.head.appendChild(script);
 }
 
 // ── RENDER ──
