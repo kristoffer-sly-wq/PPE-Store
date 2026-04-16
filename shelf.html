@@ -343,10 +343,10 @@ var DEMO_SHELVES = {
   "305-L1-CABINET-AFT": {
     label: "305 L1 CABINET AFT", location: "Main Deck — Port Side Cabinet",
     items: [
-      { id:"L1-01", brand:"TEGERA",  name:"873 Gloves",           emoji:"🧤", img:"", sizes:{"7":21,"8":16,"9":83,"10":130,"11":18}, min:20 },
-      { id:"L1-02", brand:"RINGER",  name:"R-Flex Cut 5 Gloves",  emoji:"🧤", img:"", sizes:{"9/M":11,"10/L":21},                   min:5  },
-      { id:"L1-03", brand:"UVEX",    name:"Safety Glasses Clear",  emoji:"🥽", img:"", sizes:{"One size":61},                         min:10 },
-      { id:"L1-04", brand:"RW",      name:"Safety Specs Amber",    emoji:"🥽", img:"", sizes:{"One size":0},                          min:10 }
+      { id:"L1-01", brand:"TEGERA",  name:"873 Gloves",           category:"Gloves",  emoji:"🧤", img:"", sizes:{"7":21,"8":16,"9":83,"10":130,"11":18}, min:20 },
+      { id:"L1-02", brand:"RINGER",  name:"R-Flex Cut 5 Gloves",  category:"Gloves",  emoji:"🧤", img:"", sizes:{"9/M":11,"10/L":21},                   min:5  },
+      { id:"L1-03", brand:"UVEX",    name:"Safety Glasses Clear",  category:"Glasses", emoji:"🥽", img:"", sizes:{"One size":61},                         min:10 },
+      { id:"L1-04", brand:"RW",      name:"Safety Specs Amber",    category:"Glasses", emoji:"🥽", img:"", sizes:{"One size":0},                          min:10 }
     ]
   }
 };
@@ -408,14 +408,24 @@ function render() {
 }
 
 function buildFilters() {
-  var cats = {};
-  shelfData.items.forEach(function(item) { cats[item.name.split(" ")[0]] = true; });
-  var keys = Object.keys(cats);
-  if (keys.length <= 1) return;
+  // Collect unique categories from dedicated category field
+  var seen = {};
+  var cats = [];
+  shelfData.items.forEach(function(item) {
+    var c = (item.category || "").trim();
+    if (c && !seen[c]) { seen[c] = true; cats.push(c); }
+  });
   var bar = document.getElementById("filterBar");
+  if (cats.length <= 1) { bar.style.display = "none"; return; }
   bar.style.display = "flex";
-  bar.innerHTML = '<button class="filter-btn active" onclick="filterItems(\'ALL\',this)">All</button>';
-  keys.forEach(function(k) { bar.innerHTML += '<button class="filter-btn" onclick="filterItems(\'' + k + '\',this)">' + k + '</button>'; });
+  // Build safely — no innerHTML +=
+  var html = '<button class="filter-btn active" onclick="filterItems(\'ALL\',this)">All</button>';
+  cats.forEach(function(c) {
+    // Escape single quotes in category name for safety
+    var safe = c.replace(/'/g, "\\'");
+    html += '<button class="filter-btn" onclick="filterItems(\'' + safe + '\',this)">' + c + '</button>';
+  });
+  bar.innerHTML = html;
 }
 
 function filterItems(cat, btn) {
@@ -443,7 +453,7 @@ function renderStats() {
 
 function renderGrid() {
   var items = shelfData.items.filter(function(item) {
-    return activeFilter === "ALL" || item.name.split(" ")[0] === activeFilter;
+    return activeFilter === "ALL" || (item.category || "").trim() === activeFilter;
   });
 
   document.getElementById("itemGrid").innerHTML = items.map(function(item) {
