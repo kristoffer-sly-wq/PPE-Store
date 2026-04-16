@@ -702,16 +702,14 @@ function closePanels() {
 
 /* ---------------- POST TO APPS SCRIPT ---------------- */
 
-// Uses URL-encoded form body (application/x-www-form-urlencoded) — this is
-// a "simple" CORS request so it never triggers preflight. The payload is a
-// JSON string inside the 'payload' form field, which doPost reads from
-// e.parameter.payload.
+// Sends the payload as a plain JSON string with Content-Type: text/plain.
+// text/plain is a "simple" CORS request — no preflight, works cross-origin.
+// Apps Script receives the JSON in e.postData.contents.
 function postToSheet(payload, cb) {
-  var body = "payload=" + encodeURIComponent(JSON.stringify(payload));
   fetch(APPS_SCRIPT_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-    body: body,
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    body: JSON.stringify(payload),
     redirect: "follow"
   })
   .then(function(r) { return r.text(); })
