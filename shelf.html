@@ -12,7 +12,6 @@
   --surface2: #1c2330;
   --border:   #2a3444;
   --accent:   #f0a500;
-  --accent2:  #8ab4ff;
   --danger:   #e03e3e;
   --ok:       #2eb87a;
   --warn:     #e07c3e;
@@ -27,18 +26,34 @@ html, body { height: 100%; }
 body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; padding-bottom: 80px; }
 
 /* HEADER */
-.hdr { background: var(--surface); border-bottom: 3px solid var(--accent); padding: 10px 16px; position: sticky; top: 0; z-index: 90; }
-.hdr-main { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hdr {
+  background: var(--surface);
+  border-bottom: 3px solid var(--accent);
+  padding: 10px 16px;
+  position: sticky; top: 0; z-index: 90;
+}
+.hdr-main { display: flex; justify-content: space-between; align-items: center; }
 .hdr-vessel { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 .hdr-shelf { font-family: var(--cond); font-size: 22px; font-weight: 900; line-height: 1; color: var(--text); }
 .hdr-loc { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
-.hdr-btns { display: flex; gap: 6px; flex-shrink: 0; }
-.hdr-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); width: 38px; height: 38px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.hdr-btns { display: flex; gap: 8px; align-items: center; }
+.hdr-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); width: 38px; height: 38px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+.hdr-btn:active { opacity: 0.7; }
 .hdr-btn.admin-on { background: var(--accent); color: #000; border-color: var(--accent); }
 
-/* ADMIN RIBBON */
-.admin-ribbon { display: none; background: var(--accent); color: #000; text-align: center; font-family: var(--mono); font-size: 10px; padding: 6px; letter-spacing: 2px; font-weight: 700; }
-.admin-ribbon.show { display: block; }
+/* ADMIN MODE BANNER */
+.admin-banner {
+  display: none;
+  background: linear-gradient(90deg, #f0a50022, transparent);
+  border-bottom: 1px solid #f0a50044;
+  padding: 6px 16px;
+  font-family: var(--mono); font-size: 9px;
+  color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+  align-items: center; gap: 8px;
+}
+.admin-banner.show { display: flex; }
+.admin-banner-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse-dot 1.2s ease infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
 /* STATS */
 .stats { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 7px 16px; display: flex; gap: 16px; overflow-x: auto; font-family: var(--mono); font-size: 10px; color: var(--muted); scrollbar-width: none; }
@@ -59,65 +74,176 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 .sec-label { font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; padding: 14px 16px 8px; display: flex; align-items: center; gap: 10px; }
 .sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-/* GRID */
+/* ITEM GRID */
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 12px; }
 @media (min-width: 800px) { .grid { grid-template-columns: repeat(3, 1fr); padding: 0 20px; } }
 @media (min-width: 1200px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 
-.card { background: linear-gradient(145deg, #1a2029, #141920); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; position: relative; transition: all 0.2s ease; display: flex; animation: fadeUp .3s ease both; }
+.card {
+  background: linear-gradient(145deg, #1a2029, #141920);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  display: flex;
+  animation: fadeUp .3s ease both;
+}
+.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.10s}
+.card:nth-child(3){animation-delay:.15s}.card:nth-child(4){animation-delay:.20s}
+.card:nth-child(5){animation-delay:.25s}.card:nth-child(6){animation-delay:.30s}
+.card:nth-child(7){animation-delay:.35s}.card:nth-child(8){animation-delay:.40s}
+
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
 .card:active { transform: scale(0.96); }
-.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(240,165,0,0.1); }
+
+/* Status bar on left edge */
 .card-status-bar { width: 4px; flex-shrink: 0; background: var(--border); border-radius: 10px 0 0 10px; }
 .card.is-ok   .card-status-bar { background: var(--ok); }
 .card.is-warn .card-status-bar { background: var(--warn); }
 .card.is-low  .card-status-bar { background: var(--danger); box-shadow: 0 0 10px rgba(224,62,62,0.4); }
+.card.is-low  { box-shadow: 0 0 10px rgba(224,62,62,0.2); }
 .card.is-out  .card-status-bar { background: var(--border); }
-.card.is-out  { filter: grayscale(0.7); opacity: 0.65; }
-.card.admin-mode { border-color: var(--accent); }
-.card.admin-mode .card-status-bar { background: var(--accent); }
+.card.is-out  { filter: grayscale(0.7); opacity: 0.6; }
 
 .card-inner { flex: 1; overflow: hidden; }
+
 .badge { position: absolute; top: 8px; right: 8px; z-index: 2; font-family: var(--mono); font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; letter-spacing: .5px; }
 .badge-ok   { background: #2eb87a18; color: var(--ok);    border: 1px solid #2eb87a33; }
 .badge-warn { background: #e07c3e18; color: var(--warn);  border: 1px solid #e07c3e33; }
 .badge-crit { background: #e03e3e18; color: var(--danger); border: 1px solid #e03e3e33; }
 
-.card-img { width: 100%; height: 120px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 8px 0 0; border-radius: 6px; }
+/* CARD IMAGE AREA */
+.card-img { width: 100%; height: 120px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 8px 0 0; border-radius: 6px; position: relative; }
 @media (min-width: 800px) { .card-img { height: 160px; } }
-.card-img img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
-.card-img-placeholder { color: #bbb; font-family: var(--cond); font-weight: 700; font-size: 14px; padding: 10px; text-align: center; }
+.card-img img { width: 100%; height: 100%; object-fit: contain; padding: 10px; transition: opacity 0.2s; }
+.card-img .emoji-fb { font-size: 52px; }
+
+/* ADMIN CAMERA BUTTON — sits on top-left of the image */
+.cam-btn {
+  display: none;
+  position: absolute;
+  bottom: 6px; left: 6px;
+  z-index: 10;
+  background: rgba(0,0,0,0.72);
+  border: 1px solid rgba(240,165,0,0.5);
+  color: var(--accent);
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s, transform 0.1s;
+}
+.cam-btn:active { transform: scale(0.9); }
+.cam-btn:hover { background: rgba(240,165,0,0.2); }
+body.admin-mode .cam-btn { display: flex; }
+
+/* UPLOAD OVERLAY — shown on the card during upload */
+.upload-overlay {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(11,15,20,0.82);
+  border-radius: 6px;
+  z-index: 20;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px;
+  backdrop-filter: blur(2px);
+}
+.upload-overlay.show { display: flex; }
+.upload-spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+.upload-txt { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: 1px; }
 
 .card-body { padding: 10px 12px 12px; }
-.card-cat { display: inline-block; font-family: var(--mono); font-size: 8px; letter-spacing: 1px; color: var(--accent2); background: #8ab4ff1a; border: 1px solid #8ab4ff33; padding: 1px 6px; border-radius: 3px; margin-bottom: 5px; text-transform: uppercase; }
 .card-brand { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--accent); margin-bottom: 2px; text-transform: uppercase; }
 .card-name { font-family: var(--cond); font-size: 15px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
 @media (min-width: 800px) { .card-name { font-size: 18px; } }
 .card-stock { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
-/* OVERLAY + PANEL (shared by issue panel and admin panel) */
+/* OVERLAY */
 .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 150; backdrop-filter: blur(3px); }
 .overlay.open { display: block; }
 
-.panel { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 3px solid var(--accent); border-radius: 16px 16px 0 0; padding: 18px 18px 36px; z-index: 200; max-height: 88vh; overflow-y: auto; }
+/* ISSUE PANEL */
+.panel {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 3px solid var(--accent);
+  border-radius: 16px 16px 0 0;
+  padding: 18px 18px 36px;
+  z-index: 200;
+  max-height: 88vh; overflow-y: auto;
+}
 .panel.open { display: block; animation: slideUp .22s cubic-bezier(.4,0,.2,1); }
-@media (min-width: 800px) { .panel { left: 50%; right: auto; transform: translateX(-50%); width: 580px; border-radius: 16px 16px 0 0; } }
+@media (min-width: 800px) { .panel { left: 50%; right: auto; transform: translateX(-50%); width: 580px; padding: 24px 32px 44px; border-radius: 16px 16px 0 0; } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@media (min-width: 800px) { .panel.open { animation: slideUpCenter .22s cubic-bezier(.4,0,.2,1); } }
+@keyframes slideUpCenter { from { transform: translateX(-50%) translateY(100%); } to { transform: translateX(-50%) translateY(0); } }
 
 .panel-top { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
-.panel-thumb { width: 72px; height: 72px; border-radius: 8px; background: #fff; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.panel-thumb { width: 72px; height: 72px; border-radius: 8px; background: #fff; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; cursor: default; }
 .panel-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.panel-thumb .emoji-fb { font-size: 36px; }
+
+/* Admin: clicking the panel thumb triggers photo upload */
+.panel-thumb-cam {
+  display: none;
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.55);
+  align-items: center; justify-content: center;
+  font-size: 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+body.admin-mode .panel-thumb { cursor: pointer; }
+body.admin-mode .panel-thumb:hover .panel-thumb-cam { display: flex; }
+body.admin-mode .panel-thumb-cam { display: flex; opacity: 0; }
+body.admin-mode .panel-thumb:hover .panel-thumb-cam { opacity: 1; }
+
 .panel-meta { flex: 1; }
-.panel-cat { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--accent2); text-transform: uppercase; margin-bottom: 2px; }
 .panel-brand { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; margin-bottom: 2px; }
 .panel-name { font-family: var(--cond); font-size: 20px; font-weight: 800; line-height: 1.2; }
-.panel-close { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 34px; height: 34px; border-radius: 7px; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+.panel-close { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 34px; height: 34px; border-radius: 7px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* Admin photo-change button inside panel (below thumb) */
+.panel-cam-btn {
+  display: none;
+  background: var(--surface2);
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+  width: 100%;
+  padding: 9px 0;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-align: center;
+  margin-bottom: 16px;
+  transition: background 0.15s;
+}
+.panel-cam-btn:hover { background: #f0a50015; }
+body.admin-mode .panel-cam-btn { display: block; }
 
 .field-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
 
 /* SIZE BUTTONS */
 .size-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-.sz { background: var(--surface2); border: 1px solid var(--border); color: var(--text); min-width: 64px; height: 56px; border-radius: 8px; font-family: var(--mono); font-size: 15px; cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: 600; padding: 0 10px; }
+.sz {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); min-width: 64px; height: 56px;
+  border-radius: 8px; font-family: var(--mono); font-size: 15px;
+  cursor: pointer; transition: all .1s;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  font-weight: 600; padding: 0 10px;
+}
 .sz:hover, .sz.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 800; }
 .sz.oos { opacity: .3; cursor: not-allowed; text-decoration: line-through; }
 .sz-count { font-size: 10px; color: var(--muted); display: block; text-align: center; margin-top: 2px; }
@@ -127,46 +253,24 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 .qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .qty-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; min-width: 70px; }
 .qty-ctrl { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-.qbtn { background: var(--surface2); border: none; color: var(--accent); width: 58px; height: 58px; font-size: 28px; cursor: pointer; font-weight: 700; }
+.qbtn { background: var(--surface2); border: none; color: var(--accent); width: 58px; height: 58px; font-size: 28px; cursor: pointer; transition: background .1s; font-weight: 700; }
 .qbtn:hover { background: var(--border); }
 .qbtn:active { background: var(--accent); color: #000; }
-.qval { width: 64px; text-align: center; font-family: var(--mono); font-size: 24px; background: var(--bg); color: var(--text); border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); height: 58px; line-height: 58px; }
-.qval-input { font-size: 22px; font-weight: 700; }
+.qval { width: 58px; text-align: center; font-family: var(--mono); font-size: 24px; background: var(--bg); color: var(--text); border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); height: 58px; line-height: 58px; pointer-events: none; }
 
-.name-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 14px; border-radius: 8px; font-family: var(--body); font-size: 15px; margin-bottom: 16px; }
+/* NAME INPUT */
+.name-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 14px 14px; border-radius: 8px; font-family: var(--body); font-size: 15px; margin-bottom: 16px; }
 .name-inp:focus { outline: none; border-color: var(--accent); }
 .name-inp::placeholder { color: var(--muted); }
 
-.submit { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 10px; font-family: var(--cond); font-size: 19px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+/* SUBMIT */
+.submit { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 10px; font-family: var(--cond); font-size: 19px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: opacity .1s; position: relative; overflow: hidden; }
 .submit:active { opacity: .75; }
-.submit:disabled { opacity: .5; cursor: not-allowed; }
-.submit.admin { background: var(--accent2); color: #000; }
 
-/* ADMIN PANEL — size row with current qty and set/adjust buttons */
-.admin-size-row { display: grid; grid-template-columns: 60px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.admin-size-row:last-child { border-bottom: none; }
-.admin-size-lbl { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); }
-.admin-size-qty { font-family: var(--mono); font-size: 13px; color: var(--muted); }
-.admin-size-qty .num { color: var(--text); font-size: 18px; font-weight: 700; }
-.admin-size-qty.changed .num { color: var(--ok); }
-.admin-size-btns { display: flex; gap: 6px; }
-.admin-size-btns button { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); width: 40px; height: 40px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 700; }
-.admin-size-btns button:active { background: var(--accent); color: #000; }
-.admin-size-btns .set-btn { background: var(--accent2); color: #000; border-color: var(--accent2); font-family: var(--mono); font-size: 10px; width: auto; padding: 0 12px; font-weight: 700; }
-
-/* PASSWORD PROMPT */
-.pw-ovl { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
-.pw-ovl.open { display: flex; }
-.pw-box { background: var(--surface); border: 2px solid var(--accent); border-radius: 12px; padding: 22px; max-width: 360px; width: 100%; }
-.pw-ttl { font-family: var(--cond); font-size: 22px; font-weight: 900; margin-bottom: 4px; color: var(--accent); }
-.pw-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
-.pw-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 14px; border-radius: 8px; font-family: var(--mono); font-size: 16px; letter-spacing: 3px; margin-bottom: 12px; text-align: center; }
-.pw-inp:focus { outline: none; border-color: var(--accent); }
-.pw-btns { display: flex; gap: 8px; }
-.pw-btns button { flex: 1; padding: 14px; border-radius: 8px; border: none; font-family: var(--cond); font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; }
-.pw-go { background: var(--accent); color: #000; }
-.pw-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border) !important; }
-.pw-err { font-family: var(--mono); font-size: 10px; color: var(--danger); margin-top: 8px; min-height: 14px; }
+/* SUCCESS CHECKMARK ANIMATION */
+.submit-success { display: none; position: absolute; inset: 0; background: var(--ok); align-items: center; justify-content: center; font-size: 28px; font-weight: 900; color: #fff; }
+.submit-success.show { display: flex; animation: popIn .3s ease; }
+@keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* ISSUE LOG */
 .log-toggle { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px; cursor: pointer; user-select: none; }
@@ -181,13 +285,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 .log-item { font-family: var(--cond); font-size: 14px; font-weight: 700; }
 .log-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 2px; }
 .log-qty { font-family: var(--mono); font-size: 15px; color: var(--danger); font-weight: 700; }
-.log-qty.count { color: var(--accent2); }
 .empty-log { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; padding: 16px; border: 1px dashed var(--border); border-radius: 8px; margin: 0 12px 16px; }
 
 /* TOAST */
-.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-16px); background: #000; color: var(--ok); border: 2px solid var(--ok); padding: 10px 24px; border-radius: 8px; font-family: var(--cond); font-size: 16px; font-weight: 900; opacity: 0; transition: all .25s; pointer-events: none; z-index: 999; white-space: nowrap; letter-spacing: 0.5px; max-width: 90vw; text-align: center; }
+.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-16px); background: #000; color: var(--ok); border: 2px solid var(--ok); padding: 10px 24px; border-radius: 8px; font-family: var(--cond); font-size: 16px; font-weight: 900; opacity: 0; transition: all .25s; pointer-events: none; z-index: 999; white-space: nowrap; letter-spacing: 0.5px; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.err { background: #000; color: var(--danger); border-color: var(--danger); white-space: normal; font-size: 13px; line-height: 1.3; padding: 12px 18px; }
+.toast.err { background: #000; color: var(--danger); border-color: var(--danger); }
+.toast.info { background: #000; color: var(--accent); border-color: var(--accent); }
 
 /* LOADER */
 .loader { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 14px; }
@@ -195,48 +299,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 @keyframes spin { to { transform: rotate(360deg); } }
 .loader-txt { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
-/* CART — floating button */
-.cart-fab { position: fixed; right: 16px; bottom: 20px; z-index: 100; background: var(--accent); color: #000; border: none; border-radius: 28px; height: 56px; padding: 0 22px 0 18px; display: flex; align-items: center; gap: 10px; font-family: var(--cond); font-size: 18px; font-weight: 900; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 0 2px #0b0f14; transition: transform 0.2s, opacity 0.2s; text-transform: uppercase; }
-.cart-fab:active { transform: scale(0.94); }
-.cart-fab.hidden { opacity: 0; pointer-events: none; transform: translateY(80px); }
-.cart-fab-icon { font-size: 22px; }
-.cart-fab-count { background: #000; color: var(--accent); min-width: 26px; height: 26px; border-radius: 13px; padding: 0 8px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; font-weight: 700; }
-
-/* CART PANEL (reuses .panel / .overlay styles) */
-#cartPanel .panel-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-#cartPanel .cart-ttl { font-family: var(--cond); font-size: 22px; font-weight: 900; color: var(--accent); }
-#cartPanel .cart-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
-
-.cart-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.cart-row { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
-.cart-row-main { min-width: 0; }
-.cart-row-cat { display: inline-block; font-family: var(--mono); font-size: 8px; letter-spacing: 1px; color: var(--accent2); background: #8ab4ff1a; border: 1px solid #8ab4ff33; padding: 1px 5px; border-radius: 3px; margin-bottom: 3px; text-transform: uppercase; }
-.cart-row-name { font-family: var(--cond); font-size: 15px; font-weight: 700; line-height: 1.15; color: var(--text); }
-.cart-row-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
-.cart-row-ctrls { display: flex; align-items: center; gap: 4px; }
-.cart-qbtn { background: var(--bg); border: 1px solid var(--border); color: var(--accent); width: 32px; height: 32px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0; }
-.cart-qbtn:active { background: var(--accent); color: #000; }
-.cart-qval { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); min-width: 22px; text-align: center; }
-.cart-remove { background: transparent; border: none; color: var(--danger); width: 30px; height: 30px; font-size: 20px; cursor: pointer; padding: 0; margin-left: 4px; }
-.cart-remove:active { opacity: 0.6; }
-
-.cart-empty { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 24px; border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 16px; }
-.cart-total { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 14px; padding: 8px 2px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); letter-spacing: 1px; text-transform: uppercase; }
-.cart-total-val { color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: 0; }
-
-.cart-btn-row { display: flex; gap: 8px; margin-top: 10px; }
-.cart-btn-row .submit { flex: 1; }
-.btn-clear { background: var(--surface2); color: var(--danger); border: 1px solid var(--danger); padding: 14px 16px; border-radius: 10px; font-family: var(--cond); font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
-.btn-clear:active { opacity: 0.7; }
-
-/* "In cart" chip on size buttons when reserved */
-.sz-incart { background: var(--accent2) !important; color: #000 !important; border-color: var(--accent2) !important; }
-.sz-incart .sz-count { color: #0007 !important; }
+/* Hidden file input */
+#photoInput { display: none; }
 </style>
 </head>
 <body>
-
-<div class="admin-ribbon" id="adminRibbon">⚙ ADMIN MODE — STOCK COUNT · tap any item to adjust</div>
 
 <div class="hdr">
   <div class="hdr-main">
@@ -246,10 +313,16 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
       <div class="hdr-loc" id="hdrLoc">—</div>
     </div>
     <div class="hdr-btns">
-      <button class="hdr-btn" id="adminBtn" onclick="toggleAdmin()" title="Admin">🔒</button>
+      <button class="hdr-btn" id="adminToggleBtn" onclick="toggleAdmin()" title="Toggle Admin Mode">🔒</button>
       <button class="hdr-btn" onclick="init()" title="Refresh">↻</button>
     </div>
   </div>
+</div>
+
+<!-- Admin mode banner -->
+<div class="admin-banner" id="adminBanner">
+  <div class="admin-banner-dot"></div>
+  ADMIN MODE — Tap camera icon on any item to update its photo
 </div>
 
 <div class="stats" id="statsBar">
@@ -269,27 +342,35 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 </div>
 
 <div class="log-toggle" onclick="toggleLog()">
-  <div class="log-toggle-lbl">Recent activity — today <span id="logBadge" style="display:none;background:var(--danger);color:#fff;font-size:9px;padding:2px 7px;border-radius:10px;margin-left:6px;font-family:var(--mono);letter-spacing:0"></span></div>
+  <div class="log-toggle-lbl">Issue log — today <span id="logBadge" style="display:none;background:var(--danger);color:#fff;font-size:9px;padding:2px 7px;border-radius:10px;margin-left:6px;font-family:var(--mono);letter-spacing:0"></span></div>
   <div class="log-chevron" id="logChevron">▼</div>
 </div>
 <div class="log-body" id="logBody">
-  <div class="empty-log" id="logWrap">No activity yet today</div>
+  <div class="empty-log" id="logWrap">No issues logged yet today</div>
 </div>
 
-<!-- ISSUE PANEL -->
-<div class="overlay" id="overlay" onclick="closePanels()"></div>
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+
 <div class="panel" id="issuePanel">
   <div class="panel-top">
-    <div class="panel-thumb"><img id="pThumbImg" src="" alt=""/></div>
+    <div class="panel-thumb" id="pThumb" onclick="triggerPhotoUpload()">
+      <img id="pThumbImg" src="" alt="" onerror="this.style.display='none';document.getElementById('pThumbEmoji').style.display='block'"/>
+      <span class="emoji-fb" id="pThumbEmoji" style="display:none"></span>
+      <div class="panel-thumb-cam">📷</div>
+    </div>
     <div class="panel-meta">
-      <div class="panel-cat" id="pCat"></div>
       <div class="panel-brand" id="pBrand"></div>
       <div class="panel-name" id="pName"></div>
     </div>
-    <button class="panel-close" onclick="closePanels()">✕</button>
+    <button class="panel-close" onclick="closePanel()">✕</button>
   </div>
+
+  <!-- Admin photo change button -->
+  <button class="panel-cam-btn" onclick="triggerPhotoUpload()">📷 &nbsp;Change Photo</button>
+
   <div class="field-lbl">Select size / variant</div>
   <div class="size-wrap" id="sizeWrap"></div>
+
   <div class="qty-row">
     <span class="qty-lbl">Quantity</span>
     <div class="qty-ctrl">
@@ -298,65 +379,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
       <button class="qbtn" onclick="changeQty(1)">+</button>
     </div>
   </div>
-  <button class="submit" id="submitBtn" onclick="addToCart()">＋ Add to Cart</button>
+
+  <div class="field-lbl">Your name</div>
+  <input class="name-inp" id="nameInp" type="text" placeholder="Optional — helps track issues" autocomplete="off"/>
+
+  <button class="submit" id="submitBtn" onclick="submitIssue()">
+    ✓ &nbsp;Log Issue
+    <div class="submit-success" id="successAnim">✓ Logged!</div>
+  </button>
 </div>
 
-<!-- ADMIN PANEL -->
-<div class="panel" id="adminPanel">
-  <div class="panel-top">
-    <div class="panel-thumb"><img id="aThumbImg" src="" alt=""/></div>
-    <div class="panel-meta">
-      <div class="panel-cat" id="aCat"></div>
-      <div class="panel-brand" id="aBrand"></div>
-      <div class="panel-name" id="aName"></div>
-    </div>
-    <button class="panel-close" onclick="closePanels()">✕</button>
-  </div>
-  <div class="field-lbl">Stock count — tap +/− to adjust, tap SET to enter exact number</div>
-  <div id="adminSizes"></div>
-  <div class="field-lbl" style="margin-top:18px">Your name (for audit log)</div>
-  <input class="name-inp" id="adminNameInp" type="text" placeholder="Required" autocomplete="off"/>
-  <button class="submit admin" id="adminSaveBtn" onclick="submitAdminCorrections()">✓ Save Corrections</button>
-</div>
-
-<!-- PASSWORD OVERLAY -->
-<div class="pw-ovl" id="pwOvl">
-  <div class="pw-box">
-    <div class="pw-ttl">Admin access</div>
-    <div class="pw-sub">Enter password to edit stock</div>
-    <input class="pw-inp" id="pwInp" type="password" autocomplete="off" placeholder="••••••" onkeypress="if(event.key==='Enter')submitPw()"/>
-    <div class="pw-btns">
-      <button class="pw-cancel" onclick="closePw()">Cancel</button>
-      <button class="pw-go" onclick="submitPw()">Unlock</button>
-    </div>
-    <div class="pw-err" id="pwErr"></div>
-  </div>
-</div>
-
-<!-- CART PANEL -->
-<div class="panel" id="cartPanel">
-  <div class="panel-hdr">
-    <div>
-      <div class="cart-ttl">Your cart</div>
-      <div class="cart-sub" id="cartSubLbl">Review items before issuing</div>
-    </div>
-    <button class="panel-close" onclick="closePanels()">✕</button>
-  </div>
-  <div id="cartBody"></div>
-  <div class="field-lbl" style="margin-top:6px">Your name</div>
-  <input class="name-inp" id="cartNameInp" type="text" placeholder="Optional — helps track issues" autocomplete="off"/>
-  <div class="cart-btn-row">
-    <button class="btn-clear" onclick="clearCart()">Empty</button>
-    <button class="submit" id="checkoutBtn" onclick="checkout()">✓ Check Out</button>
-  </div>
-</div>
-
-<!-- FLOATING CART BUTTON -->
-<button class="cart-fab hidden" id="cartFab" onclick="openCart()">
-  <span class="cart-fab-icon">🛒</span>
-  <span>Cart</span>
-  <span class="cart-fab-count" id="cartFabCount">0</span>
-</button>
+<!-- Hidden file input for photo upload -->
+<input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhotoSelected(this)"/>
 
 <div class="toast" id="toast"></div>
 
@@ -364,6 +398,18 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec";
 var params = new URLSearchParams(window.location.search);
 var SHELF_ID = params.get("id") || "DEMO";
+
+var DEMO_SHELVES = {
+  "305-L1-CABINET-AFT": {
+    label: "305 L1 CABINET AFT", location: "Main Deck — Port Side Cabinet",
+    items: [
+      { id:"L1-01", brand:"TEGERA", name:"873 Gloves", emoji:"🧤", img:"", sizes:{"7":21,"8":16,"9":83,"10":130,"11":18}, min:20 },
+      { id:"L1-02", brand:"RINGER", name:"R-Flex Cut 5 Gloves", emoji:"🧤", img:"", sizes:{"9/M":11,"10/L":21}, min:5 },
+      { id:"L1-03", brand:"UVEX", name:"Safety Glasses Clear", emoji:"🥽", img:"", sizes:{"One size":61}, min:10 },
+      { id:"L1-04", brand:"RW", name:"Safety Specs Amber", emoji:"🥽", img:"", sizes:{"One size":0}, min:10 }
+    ]
+  }
+};
 
 var shelfData = null;
 var activeItem = null;
@@ -373,76 +419,43 @@ var sessionLog = [];
 var activeFilter = "ALL";
 var logOpen = false;
 var adminMode = false;
-var adminName = "";
-var adminEdits = {};  // size -> new absolute qty
 
-// ---- CART ----
-// Cart items persist in localStorage so they survive navigation between shelves.
-// Each entry: { shelfId, shelfLabel, itemId, brand, name, size, qty, category, img }
-var CART_STORAGE_KEY = "ppeCart_v1";
-var CART_NAME_KEY    = "ppeCartName_v1";
-var cart = loadCart();
+// ─── ADMIN MODE ─────────────────────────────────────────────────────────────
 
-function loadCart() {
-  try {
-    var raw = localStorage.getItem(CART_STORAGE_KEY);
-    if (!raw) return [];
-    var parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) { return []; }
-}
-function saveCart() {
-  try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch (e) {}
+function toggleAdmin() {
+  adminMode = !adminMode;
+  document.body.classList.toggle("admin-mode", adminMode);
+  document.getElementById("adminBanner").classList.toggle("show", adminMode);
+  var btn = document.getElementById("adminToggleBtn");
+  btn.textContent = adminMode ? "🔓" : "🔒";
+  btn.classList.toggle("admin-on", adminMode);
+  toast(adminMode ? "Admin mode ON" : "Admin mode OFF", false, true);
 }
 
-// How many of (shelfId, itemId, size) are currently reserved in cart?
-function reservedQty(shelfId, itemId, size) {
-  var total = 0;
-  for (var i = 0; i < cart.length; i++) {
-    var c = cart[i];
-    if (c.shelfId === shelfId && c.itemId === itemId && c.size === size) {
-      total += Number(c.qty) || 0;
-    }
-  }
-  return total;
-}
-// Effective stock to display = actual - reserved
-function displayStock(item, size) {
-  var actual = Number(item.sizes[size]) || 0;
-  return Math.max(0, actual - reservedQty(SHELF_ID, item.id, size));
-}
-function displayTotal(item) {
-  var entries = Object.entries(item.sizes);
-  var t = 0;
-  for (var i = 0; i < entries.length; i++) {
-    t += displayStock(item, entries[i][0]);
-  }
-  return t;
-}
+// ─── INIT & DATA ─────────────────────────────────────────────────────────────
 
 function init() {
+  var isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
+  if (isDemo) {
+    shelfData = DEMO_SHELVES[SHELF_ID] || DEMO_SHELVES["305-L1-CABINET-AFT"];
+    render(); return;
+  }
   var cbName = "ppe_" + Date.now();
   var script = document.createElement("script");
   var timer = setTimeout(function() {
-    document.getElementById("itemGrid").innerHTML =
-      '<div class="loader" style="grid-column:1/-1"><div style="font-family:var(--mono);font-size:11px;color:var(--danger);text-align:center;padding:30px">Could not load shelf data. Check network connection.</div></div>';
+    document.getElementById("itemGrid").innerHTML = '<div class="loader" style="grid-column:1/-1"><div style="font-family:var(--mono);font-size:11px;color:var(--danger);text-align:center;padding:30px">Could not load shelf data.</div></div>';
     script.remove();
   }, 10000);
   window[cbName] = function(data) {
     clearTimeout(timer); script.remove(); delete window[cbName];
-    if (data.error) {
-      document.getElementById("itemGrid").innerHTML =
-        '<div class="loader" style="grid-column:1/-1"><div style="color:var(--danger);font-family:var(--mono);font-size:11px;text-align:center;padding:30px">' + data.error + '</div></div>';
-      return;
-    }
-    shelfData = data;
-    render();
+    if (data.error) { document.getElementById("itemGrid").innerHTML = '<div class="loader" style="grid-column:1/-1"><div style="color:var(--danger);font-family:var(--mono);font-size:11px;text-align:center;padding:30px">' + data.error + '</div></div>'; return; }
+    shelfData = data; render();
   };
   script.src = APPS_SCRIPT_URL + "?action=getShelf&id=" + encodeURIComponent(SHELF_ID) + "&callback=" + cbName;
   document.head.appendChild(script);
 }
 
-function totalStock(item) { return displayTotal(item); }
+function totalStock(item) { return Object.values(item.sizes).reduce(function(a,b){return a+b;},0); }
 function stockLevel(item) {
   var t = totalStock(item);
   if (t === 0) return "out";
@@ -458,35 +471,19 @@ function render() {
   renderStats();
   renderGrid();
   renderLog();
-  renderCartFab();
-}
-
-function renderCartFab() {
-  var fab = document.getElementById("cartFab");
-  var count = cart.reduce(function(a, c){ return a + (Number(c.qty)||0); }, 0);
-  if (count === 0) { fab.classList.add("hidden"); }
-  else {
-    fab.classList.remove("hidden");
-    document.getElementById("cartFabCount").textContent = count;
-  }
 }
 
 function buildFilters() {
-  // Group by Category field (fall back to "Other")
   var cats = {};
-  shelfData.items.forEach(function(item) {
-    var c = (item.category || "Other").trim() || "Other";
-    cats[c] = true;
-  });
-  var keys = Object.keys(cats).sort();
+  shelfData.items.forEach(function(item) { var c = item.name.split(" ")[0]; cats[c] = true; });
+  var keys = Object.keys(cats);
+  if (keys.length <= 1) return;
   var bar = document.getElementById("filterBar");
-  if (keys.length <= 1) { bar.style.display = "none"; return; }
   bar.style.display = "flex";
-  var html = '<button class="filter-btn' + (activeFilter==="ALL"?' active':'') + '" onclick="filterItems(\'ALL\', this)">All</button>';
+  bar.innerHTML = '<button class="filter-btn active" onclick="filterItems(\'ALL\', this)">All</button>';
   keys.forEach(function(k) {
-    html += '<button class="filter-btn' + (activeFilter===k?' active':'') + '" onclick="filterItems(\'' + escAttr(k) + '\', this)">' + escHtml(k) + '</button>';
+    bar.innerHTML += '<button class="filter-btn" onclick="filterItems(\'' + k + '\', this)">' + k + '</button>';
   });
-  bar.innerHTML = html;
 }
 
 function filterItems(cat, btn) {
@@ -498,93 +495,75 @@ function filterItems(cat, btn) {
 
 function renderStats() {
   var items = shelfData.items;
-  var out  = items.filter(function(i){return stockLevel(i)==="out";}).length;
+  var out = items.filter(function(i){return stockLevel(i)==="out";}).length;
   var crit = items.filter(function(i){return stockLevel(i)==="crit";}).length;
   var warn = items.filter(function(i){return stockLevel(i)==="warn";}).length;
-  var cartCount = cart.reduce(function(a, c){ return a + (Number(c.qty)||0); }, 0);
   document.getElementById("statsBar").innerHTML =
     '<div class="stat"><div class="dot dot-ok"></div> ' + items.length + ' item types</div>' +
     (crit ? '<div class="stat"><div class="dot dot-crit"></div> ' + crit + ' low stock</div>' : '') +
-    (out  ? '<div class="stat"><div class="dot dot-crit"></div> ' + out + ' out of stock</div>' : '') +
+    (out ? '<div class="stat"><div class="dot dot-crit"></div> ' + out + ' out of stock</div>' : '') +
     (warn ? '<div class="stat"><div class="dot dot-warn"></div> ' + warn + ' running low</div>' : '') +
-    (cartCount ? '<div class="stat"><div class="dot dot-ok" style="background:var(--accent2)"></div> ' + cartCount + ' in cart</div>' : '') +
-    '<div class="stat"><div class="dot dot-ok"></div> ' + sessionLog.length + ' activity today</div>';
+    '<div class="stat"><div class="dot dot-ok"></div> ' + sessionLog.length + ' issued today</div>';
   var badge = document.getElementById("logBadge");
-  if (sessionLog.length > 0) { badge.style.display = "inline"; badge.textContent = sessionLog.length; }
+  if (sessionLog.length > 0) { badge.style.display = "inline"; badge.textContent = sessionLog.length + " issued"; }
   else { badge.style.display = "none"; }
 }
 
 function renderGrid() {
   var items = shelfData.items.filter(function(item) {
     if (activeFilter === "ALL") return true;
-    return (item.category || "Other") === activeFilter;
+    return item.name.split(" ")[0] === activeFilter;
   });
-  if (items.length === 0) {
-    document.getElementById("itemGrid").innerHTML = '<div class="loader" style="grid-column:1/-1"><div class="loader-txt">No items in this category.</div></div>';
-    return;
-  }
+
   document.getElementById("itemGrid").innerHTML = items.map(function(item) {
     var lvl = stockLevel(item);
     var total = totalStock(item);
-    var cardCls = (adminMode ? "admin-mode " : "") + (lvl === "out" ? "is-out" : lvl === "crit" ? "is-low" : lvl === "warn" ? "is-warn" : "is-ok");
-    var badgeTxt = total === 0 ? "OUT" : lvl === "crit" ? "LOW — " + total : total + " in stock";
+    var cardCls = lvl === "out" ? "is-out" : lvl === "crit" ? "is-low" : lvl === "warn" ? "is-warn" : "is-ok";
+    var badgeTxt = total === 0 ? "OUT" : lvl === "crit" ? "LOW — " + total + " left" : lvl === "warn" ? total + " left" : total + " in stock";
     var badgeCls = (lvl === "out" || lvl === "crit") ? "badge-crit" : lvl === "warn" ? "badge-warn" : "badge-ok";
     var imgHtml = item.img
-      ? '<img src="' + escAttr(item.img) + '" alt="' + escAttr(item.name) + '" onerror="this.outerHTML=\'<div class=card-img-placeholder>' + escHtml(item.name) + '</div>\'"/>'
-      : '<div class="card-img-placeholder">' + escHtml(item.name) + '</div>';
-    var catHtml = item.category ? '<span class="card-cat">' + escHtml(item.category) + '</span>' : '';
-    return '<div class="card ' + cardCls + '" onclick="cardTap(\'' + escAttr(item.id) + '\')">' +
+      ? '<img id="cardimg-' + item.id + '" src="' + item.img + '" alt="' + item.name + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"/><span class="emoji-fb" id="cardemoji-' + item.id + '" style="display:none">' + item.emoji + '</span>'
+      : '<span class="emoji-fb" id="cardemoji-' + item.id + '">' + item.emoji + '</span>';
+    return '<div class="card ' + cardCls + '" id="card-' + item.id + '" onclick="openPanel(\'' + item.id + '\')">' +
       '<div class="card-status-bar"></div>' +
       '<div class="card-inner">' +
       '<span class="badge ' + badgeCls + '">' + badgeTxt + '</span>' +
-      '<div class="card-img">' + imgHtml + '</div>' +
-      '<div class="card-body">' + catHtml +
-      '<div class="card-brand">' + escHtml(item.brand) + '</div>' +
-      '<div class="card-name">' + escHtml(item.name) + '</div>' +
+      '<div class="card-img" id="cardimgwrap-' + item.id + '">' +
+        imgHtml +
+        '<button class="cam-btn" onclick="event.stopPropagation();triggerCardPhotoUpload(\'' + item.id + '\')" title="Update photo">📷</button>' +
+        '<div class="upload-overlay" id="overlay-' + item.id + '"><div class="upload-spinner"></div><div class="upload-txt">Uploading…</div></div>' +
+      '</div>' +
+      '<div class="card-body">' +
+      '<div class="card-brand">' + item.brand + '</div>' +
+      '<div class="card-name">' + item.name + '</div>' +
       '<div class="card-stock">' + total + ' in stock</div>' +
       '</div></div></div>';
   }).join("");
 }
 
-function cardTap(itemId) {
-  if (adminMode) { openAdminPanel(itemId); }
-  else           { openIssuePanel(itemId); }
-}
+// ─── PANEL ───────────────────────────────────────────────────────────────────
 
-/* ---------------- ISSUE PANEL ---------------- */
-
-function openIssuePanel(itemId) {
+function openPanel(itemId) {
   activeItem = shelfData.items.find(function(i){return i.id===itemId;});
-  if (!activeItem) return;
   activeSize = null; qty = 1;
-  var img = document.getElementById("pThumbImg");
-  img.src = activeItem.img || "";
-  img.onerror = function(){ this.style.display="none"; };
-  img.style.display = activeItem.img ? "block" : "none";
-  document.getElementById("pCat").textContent = activeItem.category || "";
+  var tImg = document.getElementById("pThumbImg");
+  var tEmoji = document.getElementById("pThumbEmoji");
+  if (activeItem.img) { tImg.src = activeItem.img; tImg.style.display="block"; tEmoji.style.display="none"; }
+  else { tImg.style.display="none"; tEmoji.textContent=activeItem.emoji; tEmoji.style.display="block"; }
   document.getElementById("pBrand").textContent = activeItem.brand;
   document.getElementById("pName").textContent = activeItem.name;
   document.getElementById("qval").textContent = 1;
-  var submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = false;
-  submitBtn.innerHTML = "＋ Add to Cart";
+  document.getElementById("nameInp").value = "";
+  document.getElementById("successAnim").classList.remove("show");
 
   var entries = Object.entries(activeItem.sizes);
   document.getElementById("sizeWrap").innerHTML = entries.map(function(entry) {
-    var sz = entry[0];
-    var remaining = displayStock(activeItem, sz);
-    var inCart = reservedQty(SHELF_ID, activeItem.id, sz);
-    var oos = remaining === 0;
-    var cls = "sz" + (oos ? " oos" : "") + (inCart > 0 ? " sz-incart" : "");
-    var lbl = inCart > 0 ? (remaining + " left · " + inCart + " in cart") : (remaining === 0 ? "out" : remaining + " left");
-    return '<button class="' + cls + '"' + (oos?' disabled':'') + ' onclick="' + (oos?"":"selectSize(this,'"+escAttr(sz)+"')") + '">' +
-      escHtml(sz) + '<span class="sz-count">' + lbl + '</span></button>';
+    var sz = entry[0]; var cnt = entry[1]; var oos = cnt === 0;
+    return '<button class="sz' + (oos?" oos":"") + '"' + (oos?' disabled':'') + ' onclick="' + (oos?"":"selectSize(this,'"+sz+"')") + '">' +
+      sz + '<span class="sz-count">' + (cnt===0?"out":cnt+" left") + '</span></button>';
   }).join("");
 
-  // Auto-select if only one size is available
-  var available = entries.filter(function(e){
-    return displayStock(activeItem, e[0]) > 0;
-  });
+  var available = entries.filter(function(e){return e[1]>0;});
   if (available.length === 1) {
     activeSize = available[0][0];
     var btn = document.querySelector(".sz:not(.oos)");
@@ -596,6 +575,13 @@ function openIssuePanel(itemId) {
   document.body.style.overflow = "hidden";
 }
 
+function closePanel() {
+  document.getElementById("issuePanel").classList.remove("open");
+  document.getElementById("overlay").classList.remove("open");
+  document.body.style.overflow = "";
+  activeItem = null; activeSize = null; qty = 1;
+}
+
 function selectSize(btn, sz) {
   document.querySelectorAll(".sz").forEach(function(b){b.classList.remove("active");});
   btn.classList.add("active"); activeSize = sz;
@@ -603,477 +589,63 @@ function selectSize(btn, sz) {
 }
 
 function changeQty(d) {
-  var max = (activeItem && activeSize) ? (displayStock(activeItem, activeSize) || 1) : 20;
+  var max = (activeItem && activeSize) ? (activeItem.sizes[activeSize] || 1) : 20;
   qty = Math.max(1, Math.min(qty + d, max));
   document.getElementById("qval").textContent = qty;
   if (navigator.vibrate) navigator.vibrate(20);
 }
 
-function addToCart() {
+function submitIssue() {
   if (!activeSize) { toast("Select a size first", true); return; }
-  var available = displayStock(activeItem, activeSize);
-  if (available < qty) {
-    toast("Only " + available + " available in size " + activeSize, true);
-    return;
-  }
+  var avail = activeItem.sizes[activeSize];
+  if (avail < qty) { toast("Only " + avail + " available in size " + activeSize, true); return; }
 
-  // Check if this (shelf+itemId+size) is already in cart — bump qty instead of duplicating
-  var existingIdx = -1;
-  for (var i = 0; i < cart.length; i++) {
-    if (cart[i].shelfId === SHELF_ID && cart[i].itemId === activeItem.id && cart[i].size === activeSize) {
-      existingIdx = i; break;
-    }
-  }
-  if (existingIdx >= 0) {
-    cart[existingIdx].qty = (Number(cart[existingIdx].qty) || 0) + qty;
-  } else {
-    cart.push({
-      shelfId:    SHELF_ID,
-      shelfLabel: shelfData.label,
-      itemId:     activeItem.id,
-      brand:      activeItem.brand,
-      name:       activeItem.name,
-      category:   activeItem.category || "",
-      img:        activeItem.img || "",
-      size:       activeSize,
-      qty:        qty
-    });
-  }
-  saveCart();
-  closePanels();
-  renderGrid(); renderStats(); renderCartFab();
-  toast("＋ " + qty + "× " + activeItem.brand + " " + activeItem.name + " (size " + activeSize + ")");
-  if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
-}
-
-/* ---------------- CART ---------------- */
-
-function openCart() {
-  renderCartPanel();
-  // Restore any previously-saved name
-  var savedName = "";
-  try { savedName = localStorage.getItem(CART_NAME_KEY) || ""; } catch (e) {}
-  document.getElementById("cartNameInp").value = savedName;
-  document.getElementById("cartPanel").classList.add("open");
-  document.getElementById("overlay").classList.add("open");
-  document.body.style.overflow = "hidden";
-}
-
-function renderCartPanel() {
-  var body = document.getElementById("cartBody");
-  var checkoutBtn = document.getElementById("checkoutBtn");
-  var subLbl = document.getElementById("cartSubLbl");
-
-  if (cart.length === 0) {
-    body.innerHTML = '<div class="cart-empty">Your cart is empty.<br>Tap any item on a shelf to add it.</div>';
-    checkoutBtn.disabled = true;
-    subLbl.textContent = "Empty";
-    return;
-  }
-
-  checkoutBtn.disabled = false;
-  checkoutBtn.innerHTML = "✓ Check Out";
-
-  // Group by shelf so user sees where they took things from
-  var byShelf = {};
-  var shelfOrder = [];
-  for (var i = 0; i < cart.length; i++) {
-    var c = cart[i];
-    var key = c.shelfId + "||" + (c.shelfLabel || c.shelfId);
-    if (!byShelf[key]) { byShelf[key] = []; shelfOrder.push(key); }
-    byShelf[key].push({ row: c, idx: i });
-  }
-
-  var totalItems = cart.reduce(function(a, c){ return a + (Number(c.qty)||0); }, 0);
-  var totalLines = cart.length;
-  subLbl.textContent = totalItems + " item" + (totalItems===1?"":"s") + " · " + totalLines + " line" + (totalLines===1?"":"s");
-
-  var html = '';
-  for (var si = 0; si < shelfOrder.length; si++) {
-    var k = shelfOrder[si];
-    var shelfLabel = k.split("||")[1];
-    html += '<div class="field-lbl" style="margin-top:' + (si===0?'0':'14px') + '">From: ' + escHtml(shelfLabel) + '</div>';
-    html += '<div class="cart-list">';
-    var group = byShelf[k];
-    for (var gi = 0; gi < group.length; gi++) {
-      var r = group[gi].row;
-      var idx = group[gi].idx;
-      var catHtml = r.category ? '<span class="cart-row-cat">' + escHtml(r.category) + '</span><br>' : '';
-      html += '<div class="cart-row">' +
-        '<div class="cart-row-main">' + catHtml +
-        '<div class="cart-row-name">' + escHtml(r.brand) + ' ' + escHtml(r.name) + '</div>' +
-        '<div class="cart-row-sub">Size ' + escHtml(r.size) + '</div>' +
-        '</div>' +
-        '<div class="cart-row-ctrls">' +
-          '<button class="cart-qbtn" onclick="changeCartQty(' + idx + ',-1)">−</button>' +
-          '<span class="cart-qval">' + r.qty + '</span>' +
-          '<button class="cart-qbtn" onclick="changeCartQty(' + idx + ',1)">+</button>' +
-          '<button class="cart-remove" onclick="removeFromCart(' + idx + ')" title="Remove">×</button>' +
-        '</div>' +
-      '</div>';
-    }
-    html += '</div>';
-  }
-  html += '<div class="cart-total"><span>Total items</span><span class="cart-total-val">' + totalItems + '</span></div>';
-  body.innerHTML = html;
-}
-
-function changeCartQty(idx, d) {
-  if (idx < 0 || idx >= cart.length) return;
-  var row = cart[idx];
-  var next = (Number(row.qty) || 0) + d;
-  if (next <= 0) { removeFromCart(idx); return; }
-
-  // If increasing, check actual stock is available (on the same shelf we're viewing)
-  if (d > 0 && row.shelfId === SHELF_ID && shelfData) {
-    var item = shelfData.items.find(function(i){return i.id===row.itemId;});
-    if (item) {
-      var remainingIfIncreased = (Number(item.sizes[row.size])||0) - reservedQty(row.shelfId, row.itemId, row.size) - 1;
-      if (remainingIfIncreased < 0) {
-        toast("No more in stock", true);
-        return;
-      }
-    }
-  }
-  row.qty = next;
-  saveCart();
-  renderCartPanel();
-  renderGrid(); renderStats(); renderCartFab();
-  if (navigator.vibrate) navigator.vibrate(15);
-}
-
-function removeFromCart(idx) {
-  if (idx < 0 || idx >= cart.length) return;
-  cart.splice(idx, 1);
-  saveCart();
-  renderCartPanel();
-  renderGrid(); renderStats(); renderCartFab();
-}
-
-function clearCart() {
-  if (cart.length === 0) return;
-  if (!confirm("Empty your cart? All " + cart.length + " line(s) will be removed.")) return;
-  cart = [];
-  saveCart();
-  renderCartPanel();
-  renderGrid(); renderStats(); renderCartFab();
-  toast("Cart emptied");
-}
-
-function checkout() {
-  if (cart.length === 0) { toast("Cart is empty", true); return; }
-  var name = document.getElementById("cartNameInp").value.trim() || "—";
-  try { localStorage.setItem(CART_NAME_KEY, name); } catch (e) {}
-
-  var checkoutBtn = document.getElementById("checkoutBtn");
-  checkoutBtn.disabled = true;
-  checkoutBtn.innerHTML = "Sending… 0/" + cart.length;
-
+  var name = document.getElementById("nameInp").value.trim() || "—";
   var now = new Date();
-  var dateStr = now.toISOString().slice(0,10);
   var timeStr = now.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
 
-  // Clone cart; we'll remove items from the real cart only once they've succeeded.
-  var queue = cart.map(function(c, i){ return { row: c, originalIdx: i }; });
-  var successes = [];
-  var failures = [];
-  var total = queue.length;
-  var done = 0;
+  activeItem.sizes[activeSize] -= qty;
 
-  function processNext() {
-    if (queue.length === 0) {
-      finishCheckout();
-      return;
-    }
-    var task = queue.shift();
-    var row = task.row;
-    var payload = {
-      action:   "logIssue",
-      shelf:    row.shelfId,
-      itemId:   row.itemId,
-      itemName: row.brand + " " + row.name,
-      size:     row.size,
-      qty:      row.qty,
-      name:     name,
-      time:     timeStr,
-      date:     dateStr
-    };
-    postToSheet(payload, function(resp) {
-      done++;
-      checkoutBtn.innerHTML = "Sending… " + done + "/" + total;
-      if (resp && resp.ok) {
-        successes.push(task);
-        sessionLog.unshift({ kind:"issue", itemName: payload.itemName, size: row.size, qty: row.qty, name: name, time: timeStr });
-      } else {
-        failures.push({ task: task, error: (resp && resp.error) ? resp.error : "Network error" });
-      }
-      processNext();
-    });
+  var entry = { shelf: SHELF_ID, itemId: activeItem.id, itemName: activeItem.brand + " " + activeItem.name, size: activeSize, qty: qty, name: name, time: timeStr, date: now.toISOString().slice(0,10) };
+  sessionLog.unshift(entry);
+
+  if (APPS_SCRIPT_URL !== "YOUR_APPS_SCRIPT_URL_HERE") {
+    fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(Object.assign({action:"logIssue"}, entry)) }).catch(function(){});
   }
 
-  function finishCheckout() {
-    // Remove successful items from the cart (by matching, since indexes may have shifted)
-    var succKeys = {};
-    for (var i = 0; i < successes.length; i++) {
-      var r = successes[i].row;
-      succKeys[r.shelfId + "||" + r.itemId + "||" + r.size] = true;
-    }
-    cart = cart.filter(function(c) {
-      return !succKeys[c.shelfId + "||" + c.itemId + "||" + c.size];
-    });
-    saveCart();
+  var submitBtn = document.getElementById("submitBtn");
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = "0.6";
+  submitBtn.textContent = "Saving...";
 
-    // Locally decrement stock for successes on the current shelf so the view is fresh
-    for (var j = 0; j < successes.length; j++) {
-      var s = successes[j].row;
-      if (s.shelfId === SHELF_ID && shelfData) {
-        var it = shelfData.items.find(function(i){return i.id===s.itemId;});
-        if (it && it.sizes[s.size] !== undefined) {
-          it.sizes[s.size] = Math.max(0, it.sizes[s.size] - s.qty);
-        }
-      }
-    }
+  var anim = document.getElementById("successAnim");
+  anim.classList.add("show");
+  if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
 
-    checkoutBtn.disabled = false;
-    checkoutBtn.innerHTML = "✓ Check Out";
-
-    renderCartPanel();
-    renderGrid(); renderStats(); renderLog(); renderCartFab();
-
-    if (failures.length === 0) {
-      closePanels();
-      if (!logOpen) toggleLog();
-      toast("✓ Checked out " + successes.length + " line" + (successes.length===1?"":"s"));
-      if (navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 80]);
-    } else if (successes.length === 0) {
-      toast("Failed: " + failures[0].error, true);
-    } else {
-      toast("Checked out " + successes.length + " · " + failures.length + " failed (still in cart)", true);
-    }
-  }
-
-  processNext();
-}
-
-function toggleAdmin() {
-  if (adminMode) {
-    adminMode = false;
-    adminName = "";
-    document.getElementById("adminRibbon").classList.remove("show");
-    document.getElementById("adminBtn").classList.remove("admin-on");
-    document.getElementById("adminBtn").textContent = "🔒";
+  setTimeout(function() {
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = "";
+    submitBtn.innerHTML = "✓ &nbsp;Log Issue<div class=\"submit-success\" id=\"successAnim\">✓ Logged!</div>";
+    closePanel();
     renderGrid();
-    return;
-  }
-  // Open password prompt
-  document.getElementById("pwInp").value = "";
-  document.getElementById("pwErr").textContent = "";
-  document.getElementById("pwOvl").classList.add("open");
-  setTimeout(function(){ document.getElementById("pwInp").focus(); }, 80);
+    renderStats();
+    renderLog();
+    if (!logOpen) { toggleLog(); }
+    toast(qty + "x " + activeItem.brand + " " + activeItem.name + " — Size " + activeSize);
+  }, 700);
 }
 
-function closePw() {
-  document.getElementById("pwOvl").classList.remove("open");
-}
-
-function submitPw() {
-  var entered = document.getElementById("pwInp").value;
-  // We verify server-side when saving, but also gate the UI locally so admins
-  // can see the mode even if no correction is saved yet. Local check is cosmetic;
-  // the server revalidates password on every adjustStock call.
-  if (entered !== "LAVR7") {
-    document.getElementById("pwErr").textContent = "Wrong password";
-    return;
-  }
-  adminMode = true;
-  document.getElementById("pwOvl").classList.remove("open");
-  document.getElementById("adminRibbon").classList.add("show");
-  document.getElementById("adminBtn").classList.add("admin-on");
-  document.getElementById("adminBtn").textContent = "🔓";
-  renderGrid();
-  toast("Admin mode on — tap any item to adjust stock");
-}
-
-function openAdminPanel(itemId) {
-  activeItem = shelfData.items.find(function(i){return i.id===itemId;});
-  if (!activeItem) return;
-  adminEdits = {};
-  var img = document.getElementById("aThumbImg");
-  img.src = activeItem.img || "";
-  img.onerror = function(){ this.style.display="none"; };
-  img.style.display = activeItem.img ? "block" : "none";
-  document.getElementById("aCat").textContent = activeItem.category || "";
-  document.getElementById("aBrand").textContent = activeItem.brand;
-  document.getElementById("aName").textContent = activeItem.name;
-  document.getElementById("adminNameInp").value = adminName || "";
-  var saveBtn = document.getElementById("adminSaveBtn");
-  saveBtn.disabled = false; saveBtn.innerHTML = "✓ Save Corrections";
-  renderAdminSizes();
-  document.getElementById("adminPanel").classList.add("open");
-  document.getElementById("overlay").classList.add("open");
-  document.body.style.overflow = "hidden";
-}
-
-function renderAdminSizes() {
-  var entries = Object.entries(activeItem.sizes);
-  document.getElementById("adminSizes").innerHTML = entries.map(function(entry) {
-    var sz = entry[0];
-    var origQty = Number(entry[1]) || 0;
-    var current = adminEdits[sz] !== undefined ? adminEdits[sz] : origQty;
-    var changedCls = (current !== origQty) ? ' changed' : '';
-    var deltaTxt  = (current !== origQty) ? ' (was ' + origQty + ')' : '';
-    return '<div class="admin-size-row">' +
-      '<div class="admin-size-lbl">' + escHtml(sz) + '</div>' +
-      '<div class="admin-size-qty' + changedCls + '"><span class="num">' + current + '</span>' + escHtml(deltaTxt) + '</div>' +
-      '<div class="admin-size-btns">' +
-        '<button onclick="adminDelta(\'' + escAttr(sz) + '\',-1)">−</button>' +
-        '<button onclick="adminDelta(\'' + escAttr(sz) + '\',1)">+</button>' +
-        '<button class="set-btn" onclick="adminSet(\'' + escAttr(sz) + '\')">SET</button>' +
-      '</div>' +
-    '</div>';
-  }).join("");
-}
-
-function adminDelta(size, d) {
-  var orig = Number(activeItem.sizes[size]) || 0;
-  var current = adminEdits[size] !== undefined ? adminEdits[size] : orig;
-  var next = Math.max(0, current + d);
-  if (next === orig) { delete adminEdits[size]; }
-  else { adminEdits[size] = next; }
-  renderAdminSizes();
-  if (navigator.vibrate) navigator.vibrate(15);
-}
-
-function adminSet(size) {
-  var orig = Number(activeItem.sizes[size]) || 0;
-  var current = adminEdits[size] !== undefined ? adminEdits[size] : orig;
-  var answer = prompt("Set stock for size " + size + ":", current);
-  if (answer === null) return;
-  var n = parseInt(answer, 10);
-  if (isNaN(n) || n < 0) { toast("Invalid number", true); return; }
-  if (n === orig) { delete adminEdits[size]; }
-  else { adminEdits[size] = n; }
-  renderAdminSizes();
-}
-
-function submitAdminCorrections() {
-  var name = document.getElementById("adminNameInp").value.trim();
-  if (!name) { toast("Enter your name for the audit log", true); return; }
-  adminName = name;
-
-  var sizes = Object.keys(adminEdits);
-  if (sizes.length === 0) { toast("No changes to save", true); return; }
-
-  var saveBtn = document.getElementById("adminSaveBtn");
-  saveBtn.disabled = true; saveBtn.innerHTML = "Saving…";
-
-  var queue = sizes.slice();
-  var successes = 0;
-  var failures = [];
-
-  function processNext() {
-    if (queue.length === 0) {
-      saveBtn.disabled = false; saveBtn.innerHTML = "✓ Save Corrections";
-      if (failures.length === 0) {
-        closePanels();
-        renderGrid(); renderStats(); renderLog();
-        if (!logOpen) toggleLog();
-        toast("✓ Saved " + successes + " correction" + (successes===1?"":"s"));
-      } else {
-        toast("Saved " + successes + ", " + failures.length + " failed: " + failures.join(", "), true);
-      }
-      return;
-    }
-    var sz = queue.shift();
-    var newQty = adminEdits[sz];
-    var origQty = Number(activeItem.sizes[sz]) || 0;
-    var payload = {
-      action:   "adjustStock",
-      password: "LAVR7",
-      shelf:    SHELF_ID,
-      itemId:   activeItem.id,
-      size:     sz,
-      newQty:   newQty,
-      admin:    adminName
-    };
-    postToSheet(payload, function(resp) {
-      if (resp && resp.ok) {
-        activeItem.sizes[sz] = newQty;
-        successes++;
-        sessionLog.unshift({
-          kind: "count",
-          itemName: activeItem.brand + " " + activeItem.name,
-          size: sz,
-          delta: newQty - origQty,
-          newQty: newQty,
-          name: adminName,
-          time: new Date().toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"})
-        });
-      } else {
-        failures.push(sz);
-      }
-      processNext();
-    });
-  }
-  processNext();
-}
-
-function closePanels() {
-  document.getElementById("issuePanel").classList.remove("open");
-  document.getElementById("adminPanel").classList.remove("open");
-  document.getElementById("cartPanel").classList.remove("open");
-  document.getElementById("overlay").classList.remove("open");
-  document.body.style.overflow = "";
-  activeItem = null; activeSize = null; qty = 1; adminEdits = {};
-}
-
-/* ---------------- POST TO APPS SCRIPT ---------------- */
-
-// Sends the payload as a plain JSON string with Content-Type: text/plain.
-// text/plain is a "simple" CORS request — no preflight, works cross-origin.
-// Apps Script receives the JSON in e.postData.contents.
-function postToSheet(payload, cb) {
-  fetch(APPS_SCRIPT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "text/plain;charset=UTF-8" },
-    body: JSON.stringify(payload),
-    redirect: "follow"
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(t) {
-    try { cb(JSON.parse(t)); }
-    catch (e) { cb({error: "Bad server response: " + t.slice(0,120)}); }
-  })
-  .catch(function(err) { cb({error: err.message || "Network error"}); });
-}
-
-/* ---------------- ACTIVITY LOG ---------------- */
+// ─── LOG ─────────────────────────────────────────────────────────────────────
 
 function renderLog() {
   var w = document.getElementById("logWrap");
-  if (!sessionLog.length) {
-    var empty = document.createElement("div");
-    empty.className = "empty-log"; empty.id = "logWrap";
-    empty.textContent = "No activity yet today";
-    w.parentNode.replaceChild(empty, w);
-    return;
-  }
-  var list = document.createElement("div");
-  list.className = "log-list"; list.id = "logWrap";
-  list.innerHTML = sessionLog.map(function(e) {
-    if (e.kind === "count") {
-      var sign = e.delta > 0 ? "+" + e.delta : "" + e.delta;
-      return '<div class="log-row"><div>' +
-        '<div class="log-item">[COUNT] ' + escHtml(e.itemName) + '</div>' +
-        '<div class="log-sub">Size ' + escHtml(e.size) + ' → ' + e.newQty + ' · ' + escHtml(e.name) + ' · ' + e.time + '</div>' +
-        '</div><div class="log-qty count">' + sign + '</div></div>';
-    }
-    return '<div class="log-row"><div>' +
-      '<div class="log-item">' + escHtml(e.itemName) + '</div>' +
-      '<div class="log-sub">Size ' + escHtml(e.size) + ' · ' + escHtml(e.name) + ' · ' + e.time + '</div>' +
-      '</div><div class="log-qty">−' + e.qty + '</div></div>';
-  }).join("");
-  w.parentNode.replaceChild(list, w);
+  if (!sessionLog.length) { w.outerHTML = '<div class="empty-log" id="logWrap">No issues logged yet today</div>'; return; }
+  var html = '<div class="log-list" id="logWrap">' + sessionLog.map(function(e) {
+    return '<div class="log-row"><div><div class="log-item">' + e.itemName + '</div><div class="log-sub">Size ' + e.size + ' · ' + e.name + ' · ' + e.time + '</div></div><div class="log-qty">−' + e.qty + '</div></div>';
+  }).join("") + '</div>';
+  var old = document.getElementById("logWrap");
+  var tmp = document.createElement("div"); tmp.innerHTML = html;
+  old.parentNode.replaceChild(tmp.firstChild, old);
 }
 
 function toggleLog() {
@@ -1084,25 +656,179 @@ function toggleLog() {
   else { body.classList.remove("open"); chevron.classList.remove("open"); }
 }
 
-function toast(msg, err) {
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+
+function toast(msg, err, info) {
   var t = document.getElementById("toast");
   t.textContent = msg;
-  t.className = "toast" + (err ? " err" : "");
+  t.className = "toast" + (err ? " err" : info ? " info" : "");
   t.classList.add("show");
-  setTimeout(function() { t.classList.remove("show"); }, err ? 4200 : 2800);
+  setTimeout(function() { t.classList.remove("show"); }, 2800);
 }
 
-/* ---------------- TINY HELPERS ---------------- */
+// ─── ADMIN PHOTO UPLOAD ──────────────────────────────────────────────────────
 
-function escHtml(s) {
-  return (s == null ? "" : String(s))
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+var uploadTargetItemId = null;  // which item we're uploading for
+
+/**
+ * Called from the camera button on a card (in grid, not panel).
+ * Stores the target item id and opens the file picker.
+ */
+function triggerCardPhotoUpload(itemId) {
+  if (!adminMode) return;
+  uploadTargetItemId = itemId;
+  var inp = document.getElementById("photoInput");
+  inp.value = ""; // reset so same file can be re-selected
+  inp.click();
 }
-function escAttr(s) {
-  return (s == null ? "" : String(s))
-    .replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;")
-    .replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/**
+ * Called from the "Change Photo" button inside the issue panel.
+ * Uses the currently active item.
+ */
+function triggerPhotoUpload() {
+  if (!adminMode) return;
+  if (!activeItem) return;
+  uploadTargetItemId = activeItem.id;
+  var inp = document.getElementById("photoInput");
+  inp.value = "";
+  inp.click();
+}
+
+/**
+ * Called when the user picks a file.
+ * Uses a Canvas to "flatten" EXIF rotation (iPhone orientation fix),
+ * then sends to Apps Script as base64 JPEG.
+ */
+function handlePhotoSelected(input) {
+  if (!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  var itemId = uploadTargetItemId;
+  if (!itemId) return;
+
+  // Show upload overlay on the card
+  setCardUploadState(itemId, true);
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    var img = new Image();
+    img.onload = function() {
+      // ── ORIENTATION FIX via Canvas ──
+      // Drawing to canvas physically bakes in the correct orientation,
+      // discarding any EXIF orientation flags. This prevents the
+      // "upside-down iPhone photo" problem.
+      var MAX_SIZE = 1200; // max dimension px — keeps upload fast
+      var w = img.naturalWidth;
+      var h = img.naturalHeight;
+      var scale = Math.min(1, MAX_SIZE / Math.max(w, h));
+      var cw = Math.round(w * scale);
+      var ch = Math.round(h * scale);
+
+      var canvas = document.createElement("canvas");
+      canvas.width = cw;
+      canvas.height = ch;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, cw, ch);
+
+      // Quality 0.82 JPEG — good balance of size vs clarity
+      var base64 = canvas.toDataURL("image/jpeg", 0.82);
+
+      sendPhotoToAppsScript(itemId, base64);
+    };
+    img.onerror = function() {
+      setCardUploadState(itemId, false);
+      toast("Could not read image", true);
+    };
+    img.src = dataUrl;
+  };
+  reader.onerror = function() {
+    setCardUploadState(itemId, false);
+    toast("Could not read file", true);
+  };
+  reader.readAsDataURL(file);
+}
+
+/**
+ * POSTs the base64 image to Apps Script, then updates the UI on success.
+ */
+function sendPhotoToAppsScript(itemId, base64Data) {
+  if (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
+    // Demo mode: just update the UI locally with the canvas data
+    handleUploadSuccess(itemId, base64Data);
+    return;
+  }
+
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "uploadImage",
+      itemId: itemId,
+      base64Data: base64Data
+    })
+  })
+  .then(function(res) {
+    if (!res.ok) { throw new Error("HTTP " + res.status); }
+    return res.json();
+  })
+  .then(function(data) {
+    if (data.error) { throw new Error(data.error); }
+    // Apps Script returns the Drive thumbnail URL
+    handleUploadSuccess(itemId, data.url);
+  })
+  .catch(function(err) {
+    setCardUploadState(itemId, false);
+    toast("Upload failed: " + err.message, true);
+    console.error("Upload error:", err);
+  });
+}
+
+/**
+ * Called after a successful upload.
+ * Updates the in-memory item data and refreshes both the card and the panel thumb.
+ */
+function handleUploadSuccess(itemId, newUrl) {
+  // 1. Update in-memory shelf data
+  var item = shelfData.items.find(function(i){ return i.id === itemId; });
+  if (item) { item.img = newUrl; }
+
+  // 2. Update the card image in the grid (without re-rendering the entire grid)
+  var cardImg = document.getElementById("cardimg-" + itemId);
+  var cardEmoji = document.getElementById("cardemoji-" + itemId);
+  if (cardImg) {
+    cardImg.src = newUrl;
+    cardImg.style.display = "block";
+    if (cardEmoji) { cardEmoji.style.display = "none"; }
+  } else {
+    // Card might have had only an emoji (no img element yet) — re-render the grid
+    renderGrid();
+  }
+
+  // 3. Hide the upload overlay
+  setCardUploadState(itemId, false);
+
+  // 4. Update the panel thumbnail if the panel is open for this item
+  if (activeItem && activeItem.id === itemId) {
+    var pImg = document.getElementById("pThumbImg");
+    var pEmoji = document.getElementById("pThumbEmoji");
+    pImg.src = newUrl;
+    pImg.style.display = "block";
+    if (pEmoji) { pEmoji.style.display = "none"; }
+  }
+
+  // 5. Haptic feedback + toast
+  if (navigator.vibrate) { navigator.vibrate([30, 20, 60]); }
+  toast("✓ Photo Updated Successfully");
+}
+
+/**
+ * Shows or hides the upload overlay on a specific card's image area.
+ */
+function setCardUploadState(itemId, uploading) {
+  var overlay = document.getElementById("overlay-" + itemId);
+  if (overlay) {
+    overlay.classList.toggle("show", uploading);
+  }
 }
 
 init();
