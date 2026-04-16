@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PPE Store QR Codes — Normand Maximus</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Barlow Condensed', sans-serif; background: #f0f0f0; padding: 20px; }
+.page-title { text-align: center; font-size: 22px; font-weight: 900; margin-bottom: 6px; color: #111; }
+.page-sub { text-align: center; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: #666; margin-bottom: 20px; letter-spacing: 1px; }
+.print-btn { display: block; margin: 0 auto 20px; background: #f0a500; color: #000; border: none; padding: 10px 32px; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 900; cursor: pointer; border-radius: 6px; }
+.label-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 900px; margin: 0 auto; }
+.label { background: #fff; border: 2px solid #222; border-radius: 6px; width: 180px; padding: 10px 8px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; page-break-inside: avoid; }
+.label.front-page { border-color: #f0a500; border-width: 3px; }
+.label-vessel { font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 1.5px; color: #999; text-align: center; }
+.label-qr { width: 130px; height: 130px; }
+.label-id { font-family: 'Share Tech Mono', monospace; font-size: 8px; color: #aaa; text-align: center; }
+.label-name { font-size: 15px; font-weight: 900; text-align: center; line-height: 1.1; color: #111; }
+.label-loc { font-size: 9px; font-weight: 700; text-align: center; color: #555; line-height: 1.2; }
+.label.front-page .label-name { color: #b47700; }
+.loader { text-align: center; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #888; padding: 40px; }
+@media print {
+  body { background: #fff; padding: 10px; }
+  .print-btn { display: none; }
+  .label { width: 160px; border-width: 1.5px; }
+  .label-qr { width: 115px; height: 115px; }
+}
+</style>
+</head>
+<body>
+<div class="page-title">PPE STORE — NORMAND MAXIMUS</div>
+<div class="page-sub">SCAN QR CODE TO ACCESS SHELF · 0305 MAIN DECK</div>
+<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+<div class="label-grid" id="labelGrid">
+  <div class="loader">Loading shelves from Google Sheets...</div>
+</div>
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec";
+var BASE = "https://kristoffer-sly-wq.github.io/PPE-Store";
+var QR_API = "https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=";
+
+function buildLabel(id, name, loc, url, isFront) {
+  var qrUrl = QR_API + encodeURIComponent(url);
+  var label = document.createElement("div");
+  label.className = "label" + (isFront ? " front-page" : "");
+  label.innerHTML =
+    '<div class="label-vessel">NORMAND MAXIMUS</div>' +
+    '<img class="label-qr" src="' + qrUrl + '" alt="QR"/>' +
+    '<div class="label-id">' + id + '</div>' +
+    '<div class="label-name">' + name + '</div>' +
+    '<div class="label-loc">' + loc + '</div>';
+  return label;
+}
+
+function renderLabels(shelves) {
+  var grid = document.getElementById("labelGrid");
+  grid.innerHTML = "";
+
+  // Front page label first
+  grid.appendChild(buildLabel(
+    "FRONT-PAGE",
+    "PPE Store Overview",
+    "Main Deck — All Shelves",
+    BASE + "/",
+    true
+  ));
+
+  // One label per shelf from Sheets
+  for (var i = 0; i < shelves.length; i++) {
+    var s = shelves[i];
+    var url = BASE + "/shelf.html?id=" + s.id;
+    grid.appendChild(buildLabel(s.id, s.label, s.location, url, false));
+  }
+}
+
+// Load shelves via JSONP
+var cbName = "ppe_shelves_cb";
+var script = document.createElement("script");
+var timer = setTimeout(function() {
+  document.getElementById("labelGrid").innerHTML =
+    '<div class="loader">Could not load shelves. Check network connection.</div>';
+  script.remove();
+}, 10000);
+
+window[cbName] = function(data) {
+  clearTimeout(timer);
+  script.remove();
+  delete window[cbName];
+  if (data.error) {
+    document.getElementById("labelGrid").innerHTML =
+      '<div class="loader">Error: ' + data.error + '</div>';
+    return;
+  }
+  renderLabels(data.shelves || []);
+};
+
+script.src = APPS_SCRIPT_URL + "?action=getShelves&callback=" + cbName;
+document.head.appendChild(script);
+</script>
+</body>
+</html>
