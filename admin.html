@@ -4,26 +4,74 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>PPE Store Admin — Normand Maximus</title>
+<!-- Theme must be set BEFORE paint to avoid flash of wrong theme -->
+<script>
+(function() {
+  try {
+    var saved = localStorage.getItem("ppe_theme");
+    var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night");
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch(e) {
+    document.documentElement.setAttribute("data-theme", "night");
+  }
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#0b0f14; --surface:#141920; --surface2:#1c2330; --border:#2a3444;
   --accent:#f0a500; --accent2:#8ab4ff; --danger:#e03e3e; --ok:#2eb87a; --warn:#e07c3e;
   --text:#dde4ef; --muted:#7a8a9e;
+  --header-bg:#141920;   /* same as surface in night */
+  --header-text:#dde4ef;
+  --card-shadow: none;
   --mono:'Share Tech Mono', monospace;
   --cond:'Barlow Condensed', sans-serif;
   --body:'Barlow', sans-serif;
 }
+
+/* ═══ DAY MODE ═══ Admin keeps its blue accent, but body goes light */
+[data-theme="day"] {
+  --bg:#f3f5f8; --surface:#ffffff; --surface2:#eaeef3; --border:#d5dce4;
+  --accent:#f0a500; --accent2:#3a5a8a;  /* blue darker for readability on white */
+  --danger:#c9302c; --ok:#1d8a5a; --warn:#b85c1f;
+  --text:#1a2332; --muted:#6b7a8e;
+  --header-bg:#1a3052;
+  --header-text:#ffffff;
+  --card-shadow: 0 1px 2px rgba(26,48,82,0.06), 0 2px 8px rgba(26,48,82,0.04);
+}
+[data-theme="day"] .card { box-shadow: var(--card-shadow); }
+[data-theme="day"] .card:active { box-shadow: 0 1px 2px rgba(26,48,82,0.15); }
+[data-theme="day"] .panel { box-shadow: 0 -4px 30px rgba(26,48,82,0.15); }
+[data-theme="day"] .hdr-vessel { color: rgba(255,255,255,0.85); }
+[data-theme="day"] .hdr-title { color: #fff; }
+[data-theme="day"] .hdr-sub { color: rgba(255,255,255,0.65); }
+[data-theme="day"] .hdr-btn { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); color: #fff; }
+[data-theme="day"] .hdr-btn:hover { background: rgba(255,255,255,0.22); }
+[data-theme="day"] .admin-size-btns button { background: var(--surface2); }
+[data-theme="day"] .card-sz-chip { background: var(--surface2); }
+[data-theme="day"] .name-inp { background: var(--surface); }
+[data-theme="day"] .pw-inp { background: var(--surface); }
+[data-theme="day"] .pw-box { background: var(--surface); }
+[data-theme="day"] .pw-cancel { background: var(--surface2) !important; color: var(--text) !important; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; padding-bottom: 80px; }
 
-.hdr { background: var(--surface); border-bottom: 3px solid var(--accent2); padding: 10px 16px; position: sticky; top: 0; z-index: 90; }
-.hdr-main { display: flex; justify-content: space-between; align-items: center; }
+.hdr { background: var(--header-bg); border-bottom: 3px solid var(--accent2); padding: 10px 16px; position: sticky; top: 0; z-index: 90; }
+.hdr-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .hdr-vessel { font-family: var(--mono); font-size: 9px; color: var(--accent2); letter-spacing: 2px; text-transform: uppercase; }
-.hdr-title { font-family: var(--cond); font-size: 22px; font-weight: 900; line-height: 1; color: var(--text); }
+.hdr-title { font-family: var(--cond); font-size: 22px; font-weight: 900; line-height: 1; color: var(--header-text); }
 .hdr-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+.hdr-btns-wrap { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 .hdr-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent2); width: 38px; height: 38px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* Theme toggle */
+.theme-btn .theme-icon { display: none; }
+[data-theme="night"] .theme-btn .theme-icon-sun { display: block; }
+[data-theme="day"]   .theme-btn .theme-icon-moon { display: block; }
+.theme-btn svg { display: block; }
 
 .ribbon { background: var(--accent2); color: #000; text-align: center; font-family: var(--mono); font-size: 10px; padding: 6px; letter-spacing: 2px; font-weight: 700; }
 
@@ -121,7 +169,13 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
       <div class="hdr-title">Stock Count</div>
       <div class="hdr-sub">All shelves · Password required</div>
     </div>
-    <button class="hdr-btn" onclick="loadAll()" title="Refresh">↻</button>
+    <div class="hdr-btns-wrap">
+      <button class="hdr-btn theme-btn" onclick="toggleTheme()" title="Toggle day/night mode" aria-label="Toggle day/night mode">
+        <svg class="theme-icon theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="theme-icon theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="hdr-btn" onclick="loadAll()" title="Refresh">↻</button>
+    </div>
   </div>
 </div>
 
@@ -172,6 +226,30 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── DAY / NIGHT THEME ──────────────────────────────────────────────────────
+function toggleTheme() {
+  var cur = document.documentElement.getAttribute("data-theme") || "night";
+  var next = cur === "night" ? "day" : "night";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("ppe_theme", next); } catch(e) {}
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+window.addEventListener("storage", function(e) {
+  if (e.key === "ppe_theme" && e.newValue) {
+    document.documentElement.setAttribute("data-theme", e.newValue);
+  }
+});
+if (window.matchMedia) {
+  var _mq = window.matchMedia("(prefers-color-scheme: light)");
+  var _mqL = function(ev) {
+    try { if (!localStorage.getItem("ppe_theme")) {
+      document.documentElement.setAttribute("data-theme", ev.matches ? "day" : "night");
+    }} catch(err) {}
+  };
+  if (_mq.addEventListener) _mq.addEventListener("change", _mqL);
+  else if (_mq.addListener) _mq.addListener(_mqL);
+}
+
 var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec";
 
 var unlocked = false;

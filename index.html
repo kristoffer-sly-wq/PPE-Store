@@ -4,23 +4,65 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PPE Store — Normand Maximus</title>
+<!-- Theme must be set BEFORE paint to avoid flash of wrong theme -->
+<script>
+(function() {
+  try {
+    var saved = localStorage.getItem("ppe_theme");
+    var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "day" : "night");
+    document.documentElement.setAttribute("data-theme", theme);
+  } catch(e) {
+    document.documentElement.setAttribute("data-theme", "night");
+  }
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:      #0b0f14;
-  --surface: #141920;
-  --surface2:#1c2330;
-  --border:  #2a3444;
-  --accent:  #f0a500;
-  --danger:  #e03e3e;
-  --ok:      #2eb87a;
-  --warn:    #e07c3e;
-  --text:    #dde4ef;
-  --muted:   #7a8a9e;
-  --mono:    'Share Tech Mono', monospace;
-  --cond:    'Barlow Condensed', sans-serif;
-  --body:    'Barlow', sans-serif;
+  --bg:        #0b0f14;
+  --surface:   #141920;
+  --surface2:  #1c2330;
+  --border:    #2a3444;
+  --accent:    #f0a500;
+  --danger:    #e03e3e;
+  --ok:        #2eb87a;
+  --warn:      #e07c3e;
+  --text:      #dde4ef;
+  --muted:     #7a8a9e;
+  --header-bg: #141920;
+  --header-text: #dde4ef;
+  --card-shadow: none;
+  --mono:      'Share Tech Mono', monospace;
+  --cond:      'Barlow Condensed', sans-serif;
+  --body:      'Barlow', sans-serif;
 }
+
+/* ═══ DAY MODE ═══ */
+[data-theme="day"] {
+  --bg:        #f3f5f8;
+  --surface:   #ffffff;
+  --surface2:  #eaeef3;
+  --border:    #d5dce4;
+  --accent:    #f0a500;
+  --danger:    #c9302c;
+  --ok:        #1d8a5a;
+  --warn:      #b85c1f;
+  --text:      #1a2332;
+  --muted:     #6b7a8e;
+  --header-bg: #1a3052;
+  --header-text: #ffffff;
+  --card-shadow: 0 1px 2px rgba(26,48,82,0.06), 0 2px 8px rgba(26,48,82,0.04);
+}
+[data-theme="day"] .shelf-card { box-shadow: var(--card-shadow); }
+[data-theme="day"] .shelf-card:hover { box-shadow: 0 2px 6px rgba(26,48,82,0.08), 0 6px 16px rgba(26,48,82,0.08); }
+[data-theme="day"] .vessel { color: rgba(255,255,255,0.8); }
+[data-theme="day"] .date-lbl { color: rgba(255,255,255,0.65); }
+[data-theme="day"] .date-val { color: #fff; }
+[data-theme="day"] .title { color: #fff; }
+[data-theme="day"] .cart-drawer { background: var(--bg); }
+[data-theme="day"] .cart-row { background: var(--surface); }
+[data-theme="day"] #pinOverlay > div { background: var(--surface) !important; }
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body {
   background: var(--bg);
@@ -31,10 +73,11 @@ body {
 
 /* ── HEADER ── */
 .hdr {
-  background: var(--surface);
+  background: var(--header-bg);
   border-bottom: 3px solid var(--accent);
   padding: 16px 24px;
   display: flex; justify-content: space-between; align-items: center;
+  gap: 12px;
 }
 .hdr-l { display: flex; flex-direction: column; gap: 3px; }
 .vessel {
@@ -43,10 +86,11 @@ body {
 }
 .title {
   font-family: var(--cond); font-size: 28px; font-weight: 900;
-  letter-spacing: 0.5px; line-height: 1;
+  letter-spacing: 0.5px; line-height: 1; color: var(--header-text);
 }
 .hdr-r {
   text-align: right;
+  display: flex; align-items: center; gap: 14px;
 }
 .date-lbl {
   font-family: var(--mono); font-size: 9px;
@@ -54,8 +98,22 @@ body {
 }
 .date-val {
   font-family: var(--mono); font-size: 13px;
-  color: var(--text); margin-top: 2px;
+  color: var(--header-text); margin-top: 2px;
 }
+
+/* Theme toggle in header */
+.theme-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+  color: var(--accent); width: 40px; height: 40px; border-radius: 8px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s; flex-shrink: 0;
+}
+.theme-btn:hover { background: rgba(255,255,255,0.18); }
+.theme-btn:active { opacity: 0.75; }
+.theme-btn .theme-icon { display: none; }
+[data-theme="night"] .theme-btn .theme-icon-sun { display: block; }
+[data-theme="day"]   .theme-btn .theme-icon-moon { display: block; }
+[data-theme="day"] .theme-btn { color: #fff; }
 
 /* ── FLOATING CART BUTTON (bottom-right) ── */
 .cart-fab {
@@ -298,8 +356,14 @@ body {
     <span class="title">PPE Store — 0305</span>
   </div>
   <div class="hdr-r">
-    <div class="date-lbl">Today</div>
-    <div class="date-val" id="dateVal">—</div>
+    <div>
+      <div class="date-lbl">Today</div>
+      <div class="date-val" id="dateVal">—</div>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle day/night mode" aria-label="Toggle day/night mode">
+      <svg class="theme-icon theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg class="theme-icon theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </div>
 </div>
 
@@ -367,6 +431,31 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── DAY / NIGHT THEME ──────────────────────────────────────────────────────
+// Initial theme is set in <head> before paint. This just handles the toggle.
+function toggleTheme() {
+  var cur = document.documentElement.getAttribute("data-theme") || "night";
+  var next = cur === "night" ? "day" : "night";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("ppe_theme", next); } catch(e) {}
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+window.addEventListener("storage", function(e) {
+  if (e.key === "ppe_theme" && e.newValue) {
+    document.documentElement.setAttribute("data-theme", e.newValue);
+  }
+});
+if (window.matchMedia) {
+  var _mq = window.matchMedia("(prefers-color-scheme: light)");
+  var _mqL = function(ev) {
+    try { if (!localStorage.getItem("ppe_theme")) {
+      document.documentElement.setAttribute("data-theme", ev.matches ? "day" : "night");
+    }} catch(err) {}
+  };
+  if (_mq.addEventListener) _mq.addEventListener("change", _mqL);
+  else if (_mq.addListener) _mq.addListener(_mqL);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CART — shared across index.html and shelf.html via localStorage
 // Key: "ppe_cart"  Value: JSON array of { shelf, shelfLabel, itemId, itemName, size, qty, addedAt }
