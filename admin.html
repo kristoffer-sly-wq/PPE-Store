@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PPE Store Admin — Normand Maximus</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0f14; --surface:#141920; --surface2:#1c2330; --border:#2a3444;
+  --accent:#f0a500; --accent2:#8ab4ff; --danger:#e03e3e; --ok:#2eb87a; --warn:#e07c3e;
+  --text:#dde4ef; --muted:#7a8a9e;
+  --mono:'Share Tech Mono', monospace;
+  --cond:'Barlow Condensed', sans-serif;
+  --body:'Barlow', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; padding-bottom: 80px; }
+
+.hdr { background: var(--surface); border-bottom: 3px solid var(--accent2); padding: 10px 16px; position: sticky; top: 0; z-index: 90; }
+.hdr-main { display: flex; justify-content: space-between; align-items: center; }
+.hdr-vessel { font-family: var(--mono); font-size: 9px; color: var(--accent2); letter-spacing: 2px; text-transform: uppercase; }
+.hdr-title { font-family: var(--cond); font-size: 22px; font-weight: 900; line-height: 1; color: var(--text); }
+.hdr-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
+.hdr-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent2); width: 38px; height: 38px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.ribbon { background: var(--accent2); color: #000; text-align: center; font-family: var(--mono); font-size: 10px; padding: 6px; letter-spacing: 2px; font-weight: 700; }
+
+.shelf-section { margin-top: 20px; }
+.shelf-header { padding: 8px 16px; display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--border); }
+.shelf-label { font-family: var(--cond); font-size: 16px; font-weight: 900; color: var(--accent2); letter-spacing: 1px; }
+.shelf-loc { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; }
+@media (min-width: 800px) { .grid { grid-template-columns: repeat(3, 1fr); padding: 16px 20px; } }
+@media (min-width: 1200px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+.card { background: linear-gradient(145deg, #1a2029, #141920); border: 1px solid var(--accent2); border-radius: 10px; overflow: hidden; cursor: pointer; position: relative; display: flex; transition: transform 0.15s; }
+.card:active { transform: scale(0.96); }
+.card-status-bar { width: 4px; flex-shrink: 0; background: var(--accent2); border-radius: 10px 0 0 10px; }
+.card-inner { flex: 1; overflow: hidden; padding: 10px 12px 12px; }
+.card-cat { display: inline-block; font-family: var(--mono); font-size: 8px; letter-spacing: 1px; color: var(--accent2); background: #8ab4ff1a; border: 1px solid #8ab4ff33; padding: 1px 6px; border-radius: 3px; margin-bottom: 5px; text-transform: uppercase; }
+.card-brand { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--accent); margin-bottom: 2px; text-transform: uppercase; }
+.card-name { font-family: var(--cond); font-size: 15px; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
+.card-stock { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.card-sizes { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.card-sz-chip { font-family: var(--mono); font-size: 9px; background: var(--surface2); border: 1px solid var(--border); padding: 2px 6px; border-radius: 3px; color: var(--text); }
+.card-sz-chip.oos { opacity: 0.4; }
+
+/* Shared panel + password styles — minimal copy from shelf.html */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 150; backdrop-filter: blur(3px); }
+.overlay.open { display: block; }
+.panel { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 3px solid var(--accent2); border-radius: 16px 16px 0 0; padding: 18px 18px 36px; z-index: 200; max-height: 88vh; overflow-y: auto; }
+.panel.open { display: block; animation: slideUp .22s cubic-bezier(.4,0,.2,1); }
+@media (min-width: 800px) { .panel { left: 50%; right: auto; transform: translateX(-50%); width: 580px; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.panel-top { display: flex; gap: 12px; margin-bottom: 16px; align-items: flex-start; }
+.panel-meta { flex: 1; }
+.panel-cat { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--accent2); text-transform: uppercase; margin-bottom: 2px; }
+.panel-brand { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; margin-bottom: 2px; }
+.panel-name { font-family: var(--cond); font-size: 20px; font-weight: 800; line-height: 1.2; }
+.panel-shelf { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 4px; }
+.panel-close { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 34px; height: 34px; border-radius: 7px; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+
+.field-lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+
+.admin-size-row { display: grid; grid-template-columns: 60px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.admin-size-row:last-child { border-bottom: none; }
+.admin-size-lbl { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); }
+.admin-size-qty { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.admin-size-qty .num { color: var(--text); font-size: 18px; font-weight: 700; }
+.admin-size-qty.changed .num { color: var(--ok); }
+.admin-size-btns { display: flex; gap: 6px; }
+.admin-size-btns button { background: var(--surface2); border: 1px solid var(--border); color: var(--accent2); width: 40px; height: 40px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 700; }
+.admin-size-btns button:active { background: var(--accent2); color: #000; }
+.admin-size-btns .set-btn { background: var(--accent); color: #000; border-color: var(--accent); font-family: var(--mono); font-size: 10px; width: auto; padding: 0 12px; font-weight: 700; }
+
+.name-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 14px; border-radius: 8px; font-family: var(--body); font-size: 15px; margin-bottom: 16px; }
+.name-inp:focus { outline: none; border-color: var(--accent2); }
+.name-inp::placeholder { color: var(--muted); }
+
+.submit { width: 100%; background: var(--accent2); color: #000; border: none; padding: 18px; border-radius: 10px; font-family: var(--cond); font-size: 19px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+.submit:disabled { opacity: .5; cursor: not-allowed; }
+
+.pw-ovl { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+.pw-ovl.open { display: flex; }
+.pw-box { background: var(--surface); border: 2px solid var(--accent2); border-radius: 12px; padding: 22px; max-width: 360px; width: 100%; }
+.pw-ttl { font-family: var(--cond); font-size: 22px; font-weight: 900; margin-bottom: 4px; color: var(--accent2); }
+.pw-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 18px; letter-spacing: 1px; text-transform: uppercase; }
+.pw-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 14px; border-radius: 8px; font-family: var(--mono); font-size: 16px; letter-spacing: 3px; margin-bottom: 12px; text-align: center; }
+.pw-inp:focus { outline: none; border-color: var(--accent2); }
+.pw-btns { display: flex; gap: 8px; }
+.pw-btns button { flex: 1; padding: 14px; border-radius: 8px; border: none; font-family: var(--cond); font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; letter-spacing: 1px; }
+.pw-go { background: var(--accent2); color: #000; }
+.pw-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border) !important; }
+.pw-err { font-family: var(--mono); font-size: 10px; color: var(--danger); margin-top: 8px; min-height: 14px; }
+
+.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-16px); background: #000; color: var(--ok); border: 2px solid var(--ok); padding: 10px 24px; border-radius: 8px; font-family: var(--cond); font-size: 16px; font-weight: 900; opacity: 0; transition: all .25s; pointer-events: none; z-index: 999; max-width: 90vw; text-align: center; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.err { color: var(--danger); border-color: var(--danger); white-space: normal; font-size: 13px; padding: 12px 18px; }
+
+.loader { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 14px; }
+.spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent2); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-txt { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+.locked { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; gap: 14px; padding: 20px; text-align: center; }
+.locked-icon { font-size: 48px; }
+.locked-txt { font-family: var(--cond); font-size: 22px; font-weight: 900; color: var(--accent2); }
+.locked-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+.locked-btn { background: var(--accent2); color: #000; border: none; padding: 14px 26px; border-radius: 8px; font-family: var(--cond); font-size: 16px; font-weight: 900; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-main">
+    <div>
+      <div class="hdr-vessel">NORMAND MAXIMUS · ADMIN</div>
+      <div class="hdr-title">Stock Count</div>
+      <div class="hdr-sub">All shelves · Password required</div>
+    </div>
+    <button class="hdr-btn" onclick="loadAll()" title="Refresh">↻</button>
+  </div>
+</div>
+
+<div class="ribbon" id="ribbon" style="display:none">⚙ ADMIN MODE — stock count · tap any item to adjust</div>
+
+<div id="content">
+  <div class="locked">
+    <div class="locked-icon">🔒</div>
+    <div class="locked-txt">Admin area locked</div>
+    <div class="locked-sub">Enter password to access stock count</div>
+    <button class="locked-btn" onclick="openPw()">Unlock</button>
+  </div>
+</div>
+
+<!-- PASSWORD -->
+<div class="pw-ovl" id="pwOvl">
+  <div class="pw-box">
+    <div class="pw-ttl">Admin access</div>
+    <div class="pw-sub">Stock count — admin only</div>
+    <input class="pw-inp" id="pwInp" type="password" autocomplete="off" placeholder="••••••" onkeypress="if(event.key==='Enter')submitPw()"/>
+    <div class="pw-btns">
+      <button class="pw-cancel" onclick="closePw()">Cancel</button>
+      <button class="pw-go" onclick="submitPw()">Unlock</button>
+    </div>
+    <div class="pw-err" id="pwErr"></div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="adminPanel">
+  <div class="panel-top">
+    <div class="panel-meta">
+      <div class="panel-cat" id="aCat"></div>
+      <div class="panel-brand" id="aBrand"></div>
+      <div class="panel-name" id="aName"></div>
+      <div class="panel-shelf" id="aShelfLbl"></div>
+    </div>
+    <button class="panel-close" onclick="closePanel()">✕</button>
+  </div>
+  <div class="field-lbl">Stock count — tap +/− to adjust, tap SET to enter exact number</div>
+  <div id="adminSizes"></div>
+  <div class="field-lbl" style="margin-top:18px">Your name (for audit log)</div>
+  <input class="name-inp" id="adminNameInp" type="text" placeholder="Required" autocomplete="off"/>
+  <button class="submit" id="adminSaveBtn" onclick="submitCorrections()">✓ Save Corrections</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec";
+
+var unlocked = false;
+var adminName = "";
+var allData = null;       // { shelves: [{id,label,location,items:[...]}, ...] }
+var activeShelf = null;
+var activeItem = null;
+var adminEdits = {};
+
+function openPw() {
+  document.getElementById("pwInp").value = "";
+  document.getElementById("pwErr").textContent = "";
+  document.getElementById("pwOvl").classList.add("open");
+  setTimeout(function(){ document.getElementById("pwInp").focus(); }, 80);
+}
+function closePw() { document.getElementById("pwOvl").classList.remove("open"); }
+function submitPw() {
+  var entered = document.getElementById("pwInp").value;
+  if (entered !== "LAVR7") {
+    document.getElementById("pwErr").textContent = "Wrong password";
+    return;
+  }
+  unlocked = true;
+  closePw();
+  document.getElementById("ribbon").style.display = "block";
+  loadAll();
+}
+
+function loadAll() {
+  if (!unlocked) return;
+  document.getElementById("content").innerHTML =
+    '<div class="loader"><div class="spinner"></div><div class="loader-txt">Loading all shelves…</div></div>';
+  var cbName = "ppe_admin_" + Date.now();
+  var script = document.createElement("script");
+  var timer = setTimeout(function() {
+    document.getElementById("content").innerHTML =
+      '<div class="loader"><div style="color:var(--danger);font-family:var(--mono);font-size:11px;text-align:center;padding:30px">Could not load data. Check network connection.</div></div>';
+    script.remove();
+  }, 12000);
+  window[cbName] = function(data) {
+    clearTimeout(timer); script.remove(); delete window[cbName];
+    if (data.error) {
+      document.getElementById("content").innerHTML =
+        '<div class="loader"><div style="color:var(--danger);font-family:var(--mono);font-size:11px;text-align:center;padding:30px">' + escHtml(data.error) + '</div></div>';
+      return;
+    }
+    allData = data;
+    render();
+  };
+  script.src = APPS_SCRIPT_URL + "?action=getAllItems&callback=" + cbName;
+  document.head.appendChild(script);
+}
+
+function render() {
+  if (!allData || !allData.shelves || allData.shelves.length === 0) {
+    document.getElementById("content").innerHTML =
+      '<div class="loader"><div class="loader-txt">No shelves with items found.</div></div>';
+    return;
+  }
+  var html = allData.shelves.map(function(shelf) {
+    var cards = shelf.items.map(function(item) {
+      var total = Object.values(item.sizes).reduce(function(a,b){return a+b;},0);
+      var catHtml = item.category ? '<span class="card-cat">' + escHtml(item.category) + '</span>' : '';
+      var chips = Object.entries(item.sizes).map(function(entry) {
+        var oos = entry[1] === 0;
+        return '<span class="card-sz-chip' + (oos?' oos':'') + '">' + escHtml(entry[0]) + ':' + entry[1] + '</span>';
+      }).join("");
+      return '<div class="card" onclick="openItem(\'' + escAttr(shelf.id) + '\',\'' + escAttr(item.id) + '\')">' +
+        '<div class="card-status-bar"></div>' +
+        '<div class="card-inner">' + catHtml +
+        '<div class="card-brand">' + escHtml(item.brand) + '</div>' +
+        '<div class="card-name">' + escHtml(item.name) + '</div>' +
+        '<div class="card-stock">' + total + ' in stock</div>' +
+        '<div class="card-sizes">' + chips + '</div>' +
+        '</div></div>';
+    }).join("");
+    return '<div class="shelf-section">' +
+      '<div class="shelf-header"><div class="shelf-label">' + escHtml(shelf.label) + '</div>' +
+      '<div class="shelf-loc">' + escHtml(shelf.location) + '</div></div>' +
+      '<div class="grid">' + cards + '</div></div>';
+  }).join("");
+  document.getElementById("content").innerHTML = html;
+}
+
+function openItem(shelfId, itemId) {
+  activeShelf = allData.shelves.find(function(s){return s.id===shelfId;});
+  if (!activeShelf) return;
+  activeItem = activeShelf.items.find(function(i){return i.id===itemId;});
+  if (!activeItem) return;
+  adminEdits = {};
+  document.getElementById("aCat").textContent = activeItem.category || "";
+  document.getElementById("aBrand").textContent = activeItem.brand;
+  document.getElementById("aName").textContent = activeItem.name;
+  document.getElementById("aShelfLbl").textContent = activeShelf.label + " · " + activeShelf.location;
+  document.getElementById("adminNameInp").value = adminName || "";
+  var saveBtn = document.getElementById("adminSaveBtn");
+  saveBtn.disabled = false; saveBtn.innerHTML = "✓ Save Corrections";
+  renderAdminSizes();
+  document.getElementById("adminPanel").classList.add("open");
+  document.getElementById("overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function renderAdminSizes() {
+  var entries = Object.entries(activeItem.sizes);
+  document.getElementById("adminSizes").innerHTML = entries.map(function(entry) {
+    var sz = entry[0];
+    var origQty = Number(entry[1]) || 0;
+    var current = adminEdits[sz] !== undefined ? adminEdits[sz] : origQty;
+    var changedCls = (current !== origQty) ? ' changed' : '';
+    var deltaTxt  = (current !== origQty) ? ' (was ' + origQty + ')' : '';
+    return '<div class="admin-size-row">' +
+      '<div class="admin-size-lbl">' + escHtml(sz) + '</div>' +
+      '<div class="admin-size-qty' + changedCls + '"><span class="num">' + current + '</span>' + escHtml(deltaTxt) + '</div>' +
+      '<div class="admin-size-btns">' +
+        '<button onclick="adminDelta(\'' + escAttr(sz) + '\',-1)">−</button>' +
+        '<button onclick="adminDelta(\'' + escAttr(sz) + '\',1)">+</button>' +
+        '<button class="set-btn" onclick="adminSet(\'' + escAttr(sz) + '\')">SET</button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function adminDelta(size, d) {
+  var orig = Number(activeItem.sizes[size]) || 0;
+  var current = adminEdits[size] !== undefined ? adminEdits[size] : orig;
+  var next = Math.max(0, current + d);
+  if (next === orig) { delete adminEdits[size]; } else { adminEdits[size] = next; }
+  renderAdminSizes();
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+
+function adminSet(size) {
+  var orig = Number(activeItem.sizes[size]) || 0;
+  var current = adminEdits[size] !== undefined ? adminEdits[size] : orig;
+  var answer = prompt("Set stock for size " + size + ":", current);
+  if (answer === null) return;
+  var n = parseInt(answer, 10);
+  if (isNaN(n) || n < 0) { toast("Invalid number", true); return; }
+  if (n === orig) { delete adminEdits[size]; } else { adminEdits[size] = n; }
+  renderAdminSizes();
+}
+
+function submitCorrections() {
+  var name = document.getElementById("adminNameInp").value.trim();
+  if (!name) { toast("Enter your name for the audit log", true); return; }
+  adminName = name;
+  var sizes = Object.keys(adminEdits);
+  if (sizes.length === 0) { toast("No changes to save", true); return; }
+
+  var saveBtn = document.getElementById("adminSaveBtn");
+  saveBtn.disabled = true; saveBtn.innerHTML = "Saving…";
+
+  var queue = sizes.slice();
+  var successes = 0;
+  var failures = [];
+
+  function processNext() {
+    if (queue.length === 0) {
+      saveBtn.disabled = false; saveBtn.innerHTML = "✓ Save Corrections";
+      if (failures.length === 0) {
+        closePanel();
+        // Refresh the affected item's local data
+        render();
+        toast("✓ Saved " + successes + " correction" + (successes===1?"":"s"));
+      } else {
+        toast("Saved " + successes + ", " + failures.length + " failed: " + failures.join(", "), true);
+      }
+      return;
+    }
+    var sz = queue.shift();
+    var newQty = adminEdits[sz];
+    var payload = {
+      action:"adjustStock", password:"LAVR7",
+      shelf: activeShelf.id, itemId: activeItem.id,
+      size: sz, newQty: newQty, admin: adminName
+    };
+    postToSheet(payload, function(resp) {
+      if (resp && resp.ok) {
+        activeItem.sizes[sz] = newQty;
+        successes++;
+      } else {
+        failures.push(sz);
+      }
+      processNext();
+    });
+  }
+  processNext();
+}
+
+function closePanel() {
+  document.getElementById("adminPanel").classList.remove("open");
+  document.getElementById("overlay").classList.remove("open");
+  document.body.style.overflow = "";
+  activeShelf = null; activeItem = null; adminEdits = {};
+}
+
+function postToSheet(payload, cb) {
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+    body: JSON.stringify(payload),
+    redirect: "follow"
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ try { cb(JSON.parse(t)); } catch(e) { cb({error: "Bad server response: " + t.slice(0,120)}); } })
+  .catch(function(err){ cb({error: err.message || "Network error"}); });
+}
+
+function toast(msg, err) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast" + (err ? " err" : "");
+  t.classList.add("show");
+  setTimeout(function() { t.classList.remove("show"); }, err ? 4200 : 2800);
+}
+
+function escHtml(s) {
+  return (s==null?"":String(s))
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function escAttr(s) {
+  return (s==null?"":String(s))
+    .replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,"&quot;")
+    .replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+</script>
+</body>
+</html>
