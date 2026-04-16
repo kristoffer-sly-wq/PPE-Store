@@ -199,7 +199,10 @@ body {
   font-family: var(--mono); font-size: 10px; color: var(--muted);
   display: flex; justify-content: space-between;
   flex-wrap: wrap; gap: 8px;
+  align-items: center;
 }
+.footer-admin { color: var(--muted); text-decoration: none; padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; letter-spacing: 1px; transition: all 0.15s; }
+.footer-admin:hover { color: var(--accent); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -230,11 +233,12 @@ body {
 
 <div class="footer">
   <span>PPE Store Management · Normand Maximus</span>
+  <a class="footer-admin" href="admin.html">🔒 ADMIN</a>
   <span id="lastUpdated">—</span>
 </div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWSqMvOGGM5XR75ciuMh_Stpi899u6awq1Nfl_ct2xagOTcVQ-eZ0nvZiX3GFNXrzJzA/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfdozClw9mOOVnEDEDqiBGagYG1xBYcS3qwe7zlIbSDplvbh4w/exec";
 const SHELF_PAGE      = "shelf.html";
 
 const SHELVES = [
