@@ -319,6 +319,58 @@ body.admin-mode .panel-cam-btn { display: block; }
 /* Hidden file input */
 #photoInput { display: none; }
 
+/* ═══ ADMIN STOCK-COUNT CONTROLS ═══ */
+/* When admin mode is ON, hide the shopping UI on the panel */
+body.admin-mode .size-wrap,
+body.admin-mode .qty-row,
+body.admin-mode .add-btn { display: none !important; }
+/* Show the admin stock controls when admin mode is ON */
+.admin-stock-wrap { display: none; }
+body.admin-mode .admin-stock-wrap { display: block; }
+/* Hide the floating cart button + cart drawer when admin mode is ON */
+body.admin-mode .cart-fab,
+body.admin-mode .cart-overlay,
+body.admin-mode .cart-drawer { display: none !important; }
+
+.admin-stock-wrap .field-lbl { margin-top: 4px; margin-bottom: 12px; }
+.admin-size-row {
+  display: grid; grid-template-columns: 60px 1fr auto; gap: 10px;
+  align-items: center; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.admin-size-row:last-of-type { border-bottom: none; }
+.admin-size-lbl { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); }
+.admin-size-qty { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+.admin-size-qty .num { color: var(--text); font-size: 18px; font-weight: 700; }
+.admin-size-qty.changed .num { color: var(--ok); }
+.admin-size-btns { display: flex; gap: 6px; }
+.admin-size-btns button {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--accent); width: 40px; height: 40px;
+  border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 700;
+}
+.admin-size-btns button:active { background: var(--accent); color: #000; }
+.admin-size-btns .set-btn {
+  background: var(--accent); color: #000; border-color: var(--accent);
+  font-family: var(--mono); font-size: 10px; width: auto; padding: 0 12px; font-weight: 700;
+}
+.admin-name-inp {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); padding: 14px; border-radius: 8px;
+  font-family: var(--body); font-size: 15px;
+  margin-top: 16px; margin-bottom: 12px;
+}
+.admin-name-inp:focus { outline: none; border-color: var(--accent); }
+.admin-save-btn {
+  width: 100%; background: var(--accent); color: #000; border: none;
+  padding: 18px; border-radius: 10px;
+  font-family: var(--cond); font-size: 19px; font-weight: 900;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.admin-save-btn:disabled { opacity: .5; cursor: not-allowed; }
+.admin-save-btn:active { opacity: .75; }
+
 /* ═══ CART DRAWER ═══ */
 .cart-overlay { display:none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 400; backdrop-filter: blur(3px); }
 .cart-overlay.open { display: block; }
@@ -400,7 +452,7 @@ body.admin-mode .panel-cam-btn { display: block; }
 <!-- Admin mode banner -->
 <div class="admin-banner" id="adminBanner">
   <div class="admin-banner-dot"></div>
-  ADMIN MODE — Tap camera icon on any item to update its photo
+  ADMIN MODE — Stock count · tap an item to adjust quantities · cart disabled
 </div>
 
 <div class="stats" id="statsBar">
@@ -462,6 +514,14 @@ body.admin-mode .panel-cam-btn { display: block; }
     <span>Add to Cart</span>
     <div class="add-success" id="addSuccess">✓ Added to Cart</div>
   </button>
+
+  <!-- ADMIN stock-count controls (only visible when body.admin-mode) -->
+  <div class="admin-stock-wrap">
+    <div class="field-lbl">Stock count — tap +/− to adjust, tap SET for exact number</div>
+    <div id="adminSizesList"></div>
+    <input class="admin-name-inp" id="adminNameInp" type="text" placeholder="Your name (required for audit log)" autocomplete="off"/>
+    <button class="admin-save-btn" id="adminSaveBtn" onclick="submitCorrections()">✓ Save Corrections</button>
+  </div>
 </div>
 
 <!-- FLOATING CART BUTTON (bottom-right) -->
@@ -531,6 +591,8 @@ var sessionLog = [];
 var activeFilter = "ALL";
 var logOpen = false;
 var adminMode = false;
+var adminEdits = {};        // size -> newQty (only populated for the item currently open)
+var adminName = "";         // remembered across items in one admin session
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CART — shared across pages via localStorage
@@ -573,6 +635,7 @@ window.addEventListener("storage", function(e) {
 });
 
 function openCart() {
+  if (adminMode) return;  // Safety: cart is disabled in admin mode
   renderCart();
   document.getElementById("cartOverlay").classList.add("open");
   document.getElementById("cartDrawer").classList.add("open");
@@ -690,6 +753,7 @@ function toggleAdmin() {
     var btn = document.getElementById("adminToggleBtn");
     btn.textContent = "🔒";
     btn.classList.remove("admin-on");
+    closePanel();
     toast("Admin mode OFF", false, true);
   } else {
     document.getElementById("pinOverlay").style.display = "flex";
@@ -709,7 +773,9 @@ function checkPin() {
     btn.textContent = "🔓";
     btn.classList.add("admin-on");
     closePinModal();
-    toast("Admin mode ON", false, true);
+    closeCart();    // hide cart drawer if it was open
+    closePanel();   // hide any shopping panel
+    toast("Admin mode ON — stock count active", false, true);
   } else {
     document.getElementById("pinError").textContent = "Incorrect PIN";
     document.getElementById("pinInput").value = "";
@@ -842,6 +908,7 @@ function renderGrid() {
 function openPanel(itemId) {
   activeItem = shelfData.items.find(function(i){return i.id===itemId;});
   activeSize = null; qty = 1;
+  adminEdits = {};  // fresh edits per item
   var tImg = document.getElementById("pThumbImg");
   var tEmoji = document.getElementById("pThumbEmoji");
   if (activeItem.img) { tImg.src = activeItem.img; tImg.style.display="block"; tEmoji.style.display="none"; }
@@ -869,6 +936,13 @@ function openPanel(itemId) {
     if (btn) btn.classList.add("active");
   }
 
+  // ADMIN: populate stock-count controls
+  renderAdminSizes();
+  var nameInp = document.getElementById("adminNameInp");
+  if (nameInp) nameInp.value = adminName || "";
+  var saveBtn = document.getElementById("adminSaveBtn");
+  if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = "✓ Save Corrections"; }
+
   document.getElementById("issuePanel").classList.add("open");
   document.getElementById("overlay").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -879,6 +953,7 @@ function closePanel() {
   document.getElementById("overlay").classList.remove("open");
   document.body.style.overflow = "";
   activeItem = null; activeSize = null; qty = 1;
+  adminEdits = {};
 }
 
 function selectSize(btn, sz) {
@@ -908,6 +983,7 @@ function availableAfterCart(item, size) {
 // ─── ADD TO CART (replaces the old submitIssue) ──────────────────────────────
 
 function addToCart() {
+  if (adminMode) return;  // Safety: cart is disabled in admin mode
   if (!activeSize) { toast("Select a size first", true); return; }
   var available = availableAfterCart(activeItem, activeSize);
   if (available < qty) {
@@ -950,6 +1026,133 @@ function addToCart() {
     anim.classList.remove("show");
     closePanel();
   }, 700);
+}
+
+// ─── ADMIN STOCK COUNT ───────────────────────────────────────────────────────
+
+function renderAdminSizes() {
+  if (!activeItem) return;
+  var list = document.getElementById("adminSizesList");
+  if (!list) return;
+  var entries = Object.entries(activeItem.sizes);
+  list.innerHTML = entries.map(function(entry) {
+    var sz = entry[0];
+    var origQty = Number(entry[1]) || 0;
+    var current = adminEdits[sz] !== undefined ? adminEdits[sz] : origQty;
+    var changedCls = (current !== origQty) ? ' changed' : '';
+    var deltaTxt  = (current !== origQty) ? ' (was ' + origQty + ')' : '';
+    return '<div class="admin-size-row">' +
+      '<div class="admin-size-lbl">' + sz + '</div>' +
+      '<div class="admin-size-qty' + changedCls + '"><span class="num">' + current + '</span>' + deltaTxt + '</div>' +
+      '<div class="admin-size-btns">' +
+        '<button onclick="adminDelta(\'' + sz.replace(/'/g,"\\'") + '\',-1)">−</button>' +
+        '<button onclick="adminDelta(\'' + sz.replace(/'/g,"\\'") + '\',1)">+</button>' +
+        '<button class="set-btn" onclick="adminSet(\'' + sz.replace(/'/g,"\\'") + '\')">SET</button>' +
+      '</div>' +
+    '</div>';
+  }).join("");
+}
+
+function adminDelta(size, d) {
+  if (!activeItem) return;
+  var orig = Number(activeItem.sizes[size]) || 0;
+  var current = adminEdits[size] !== undefined ? adminEdits[size] : orig;
+  var next = Math.max(0, current + d);
+  if (next === orig) { delete adminEdits[size]; } else { adminEdits[size] = next; }
+  renderAdminSizes();
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+
+function adminSet(size) {
+  if (!activeItem) return;
+  var orig = Number(activeItem.sizes[size]) || 0;
+  var current = adminEdits[size] !== undefined ? adminEdits[size] : orig;
+  var answer = prompt("Set stock for size " + size + ":", current);
+  if (answer === null) return;
+  var n = parseInt(answer, 10);
+  if (isNaN(n) || n < 0) { toast("Invalid number", true); return; }
+  if (n === orig) { delete adminEdits[size]; } else { adminEdits[size] = n; }
+  renderAdminSizes();
+}
+
+function submitCorrections() {
+  if (!activeItem) return;
+  var name = document.getElementById("adminNameInp").value.trim();
+  if (!name) { toast("Enter your name for the audit log", true); return; }
+  adminName = name;  // remember for next items
+
+  var changedSizes = Object.keys(adminEdits);
+  if (changedSizes.length === 0) { toast("No changes to save", true); return; }
+
+  var saveBtn = document.getElementById("adminSaveBtn");
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Saving…";
+
+  // Snapshot item/shelf refs in case the user closes the panel mid-save
+  var shelfId   = SHELF_ID;
+  var itemId    = activeItem.id;
+  var itemRef   = activeItem;
+
+  var queue = changedSizes.slice();
+  var successes = 0;
+  var failures = [];
+
+  function processNext() {
+    if (queue.length === 0) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "✓ Save Corrections";
+      if (failures.length === 0) {
+        toast("✓ Saved " + successes + " correction" + (successes===1?"":"s"));
+        // Refresh UI so the card reflects new totals
+        renderGrid();
+        renderStats();
+        closePanel();
+      } else {
+        toast("Saved " + successes + ", " + failures.length + " failed: " + failures.join(", "), true);
+        // Re-render sizes so unchanged (failed) ones show correct state
+        renderAdminSizes();
+      }
+      return;
+    }
+    var sz = queue.shift();
+    var newQty = adminEdits[sz];
+    var oldQty = Number(itemRef.sizes[sz]) || 0;
+    var payload = {
+      action: "adjustStock",
+      password: ADMIN_PIN,
+      shelf: shelfId,
+      itemId: itemId,
+      itemName: itemRef.brand + " " + itemRef.name,
+      size: sz,
+      oldQty: oldQty,
+      newQty: newQty,
+      admin: adminName
+    };
+
+    fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    })
+    .then(function(r){ return r.text(); })
+    .then(function(t) {
+      var resp;
+      try { resp = JSON.parse(t); } catch(e) { resp = {error: "Bad server response"}; }
+      if (resp && resp.ok) {
+        // Update in-memory stock so UI stays consistent
+        itemRef.sizes[sz] = newQty;
+        delete adminEdits[sz];
+        successes++;
+      } else {
+        failures.push(sz);
+      }
+      processNext();
+    })
+    .catch(function() {
+      failures.push(sz);
+      processNext();
+    });
+  }
+  processNext();
 }
 
 // ─── LOG ─────────────────────────────────────────────────────────────────────
