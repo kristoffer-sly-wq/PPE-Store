@@ -257,10 +257,8 @@ const SHELVES = [
 
 // Per-shelf data cache
 const shelfCache = {};
-let loadedCount  = 0;
 
 function init() {
-  // Date
   const now = new Date();
   document.getElementById("dateVal").textContent =
     now.toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short", year:"numeric" });
@@ -268,26 +266,34 @@ function init() {
   // Render skeleton cards first (clickable immediately)
   renderCards();
 
-  // Load each shelf in parallel via JSONP
-  SHELVES.forEach(s => loadShelf(s));
-}
-
-function loadShelf(shelf) {
-  const cbName = 'cb_' + shelf.id.replace(/-/g, '_');
+  // Single request to load ALL shelves at once (instead of 11 separate ones)
+  const cbName = 'cb_all_' + Date.now();
   const script = document.createElement('script');
+  const timer = setTimeout(() => {
+    document.getElementById("summaryBar").innerHTML =
+      '<div class="sstat"><div class="dot dot-crit"></div> Could not load shelves. Check connection.</div>';
+    script.remove();
+  }, 15000);
 
   window[cbName] = function(data) {
+    clearTimeout(timer);
     script.remove();
     delete window[cbName];
-    shelfCache[shelf.id] = data;
-    loadedCount++;
-    updateCard(shelf.id, data);
-    if (loadedCount === SHELVES.length) updateSummary();
+    if (data.error) {
+      document.getElementById("summaryBar").innerHTML =
+        '<div class="sstat"><div class="dot dot-crit"></div> Error: ' + data.error + '</div>';
+      return;
+    }
+    // data.shelves = [{id, label, location, items:[...]}, ...]
+    const shelves = data.shelves || [];
+    for (const shelf of shelves) {
+      shelfCache[shelf.id] = shelf;
+      updateCard(shelf.id, shelf);
+    }
+    updateSummary();
   };
 
-  script.src = APPS_SCRIPT_URL +
-    '?action=getShelf&id=' + encodeURIComponent(shelf.id) +
-    '&callback=' + cbName;
+  script.src = APPS_SCRIPT_URL + '?action=getAllItems&callback=' + cbName;
   document.head.appendChild(script);
 }
 
