@@ -390,7 +390,7 @@ body.admin-mode .panel-cam-btn { display: block; }
 </div>
 
 <!-- Hidden file input for photo upload -->
-<input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhotoSelected(this)"/>
+<input type="file" id="photoInput" accept="image/*" onchange="handlePhotoSelected(this)"/>
 
 <div class="toast" id="toast"></div>
 
@@ -448,7 +448,13 @@ function init() {
   }, 10000);
   window[cbName] = function(data) {
     clearTimeout(timer); script.remove(); delete window[cbName];
-    if (data.error) { document.getElementById("itemGrid").innerHTML = '<div class="loader" style="grid-column:1/-1"><div style="color:var(--danger);font-family:var(--mono);font-size:11px;text-align:center;padding:30px">' + data.error + '</div></div>'; return; }
+    if (data.error) {
+      var msg = data.error.indexOf('googleapis.com') !== -1 || data.error.indexOf('Authorization') !== -1
+        ? 'Apps Script needs re-authorization. Open Apps Script → Run any function → Grant permissions, then redeploy.'
+        : data.error;
+      document.getElementById("itemGrid").innerHTML = '<div class="loader" style="grid-column:1/-1"><div style="color:var(--danger);font-family:var(--mono);font-size:11px;text-align:center;padding:30px;line-height:1.8">' + msg + '</div></div>';
+      return;
+    }
     shelfData = data; render();
   };
   script.src = APPS_SCRIPT_URL + "?action=getShelf&id=" + encodeURIComponent(SHELF_ID) + "&callback=" + cbName;
@@ -675,7 +681,6 @@ var uploadTargetItemId = null;  // which item we're uploading for
  * Stores the target item id and opens the file picker.
  */
 function triggerCardPhotoUpload(itemId) {
-  if (!adminMode) return;
   uploadTargetItemId = itemId;
   var inp = document.getElementById("photoInput");
   inp.value = ""; // reset so same file can be re-selected
@@ -687,7 +692,6 @@ function triggerCardPhotoUpload(itemId) {
  * Uses the currently active item.
  */
 function triggerPhotoUpload() {
-  if (!adminMode) return;
   if (!activeItem) return;
   uploadTargetItemId = activeItem.id;
   var inp = document.getElementById("photoInput");
@@ -768,8 +772,15 @@ function sendPhotoToAppsScript(itemId, base64Data) {
     })
   })
   .then(function(res) {
-    if (!res.ok) { throw new Error("HTTP " + res.status); }
-    return res.json();
+    // Read as text first — if Apps Script returns an auth error page it won't be JSON
+    return res.text().then(function(text) {
+      // Check for OAuth/auth error in the response body
+      if (text.indexOf('googleapis.com/auth') !== -1 || text.indexOf('ScriptError') !== -1) {
+        throw new Error('auth');
+      }
+      try { return JSON.parse(text); }
+      catch(e) { throw new Error('bad response'); }
+    });
   })
   .then(function(data) {
     if (data.error) { throw new Error(data.error); }
@@ -778,7 +789,10 @@ function sendPhotoToAppsScript(itemId, base64Data) {
   })
   .catch(function(err) {
     setCardUploadState(itemId, false);
-    toast("Upload failed: " + err.message, true);
+    var msg = err.message && (err.message.indexOf('googleapis') !== -1 || err.message.indexOf('auth') !== -1)
+      ? 'Auth error — re-authorize Apps Script'
+      : 'Upload failed — check Apps Script';
+    toast(msg, true);
     console.error("Upload error:", err);
   });
 }
