@@ -194,6 +194,44 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loader-txt { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+/* CART — floating button */
+.cart-fab { position: fixed; right: 16px; bottom: 20px; z-index: 100; background: var(--accent); color: #000; border: none; border-radius: 28px; height: 56px; padding: 0 22px 0 18px; display: flex; align-items: center; gap: 10px; font-family: var(--cond); font-size: 18px; font-weight: 900; letter-spacing: 0.5px; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 0 2px #0b0f14; transition: transform 0.2s, opacity 0.2s; text-transform: uppercase; }
+.cart-fab:active { transform: scale(0.94); }
+.cart-fab.hidden { opacity: 0; pointer-events: none; transform: translateY(80px); }
+.cart-fab-icon { font-size: 22px; }
+.cart-fab-count { background: #000; color: var(--accent); min-width: 26px; height: 26px; border-radius: 13px; padding: 0 8px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 13px; font-weight: 700; }
+
+/* CART PANEL (reuses .panel / .overlay styles) */
+#cartPanel .panel-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+#cartPanel .cart-ttl { font-family: var(--cond); font-size: 22px; font-weight: 900; color: var(--accent); }
+#cartPanel .cart-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+.cart-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.cart-row { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+.cart-row-main { min-width: 0; }
+.cart-row-cat { display: inline-block; font-family: var(--mono); font-size: 8px; letter-spacing: 1px; color: var(--accent2); background: #8ab4ff1a; border: 1px solid #8ab4ff33; padding: 1px 5px; border-radius: 3px; margin-bottom: 3px; text-transform: uppercase; }
+.cart-row-name { font-family: var(--cond); font-size: 15px; font-weight: 700; line-height: 1.15; color: var(--text); }
+.cart-row-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+.cart-row-ctrls { display: flex; align-items: center; gap: 4px; }
+.cart-qbtn { background: var(--bg); border: 1px solid var(--border); color: var(--accent); width: 32px; height: 32px; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0; }
+.cart-qbtn:active { background: var(--accent); color: #000; }
+.cart-qval { font-family: var(--mono); font-size: 14px; font-weight: 700; color: var(--text); min-width: 22px; text-align: center; }
+.cart-remove { background: transparent; border: none; color: var(--danger); width: 30px; height: 30px; font-size: 20px; cursor: pointer; padding: 0; margin-left: 4px; }
+.cart-remove:active { opacity: 0.6; }
+
+.cart-empty { text-align: center; font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 24px; border: 1px dashed var(--border); border-radius: 10px; margin-bottom: 16px; }
+.cart-total { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 14px; padding: 8px 2px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); letter-spacing: 1px; text-transform: uppercase; }
+.cart-total-val { color: var(--accent); font-weight: 700; font-size: 14px; letter-spacing: 0; }
+
+.cart-btn-row { display: flex; gap: 8px; margin-top: 10px; }
+.cart-btn-row .submit { flex: 1; }
+.btn-clear { background: var(--surface2); color: var(--danger); border: 1px solid var(--danger); padding: 14px 16px; border-radius: 10px; font-family: var(--cond); font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; }
+.btn-clear:active { opacity: 0.7; }
+
+/* "In cart" chip on size buttons when reserved */
+.sz-incart { background: var(--accent2) !important; color: #000 !important; border-color: var(--accent2) !important; }
+.sz-incart .sz-count { color: #0007 !important; }
 </style>
 </head>
 <body>
@@ -260,9 +298,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
       <button class="qbtn" onclick="changeQty(1)">+</button>
     </div>
   </div>
-  <div class="field-lbl">Your name</div>
-  <input class="name-inp" id="nameInp" type="text" placeholder="Optional — helps track issues" autocomplete="off"/>
-  <button class="submit" id="submitBtn" onclick="submitIssue()">✓ Log Issue</button>
+  <button class="submit" id="submitBtn" onclick="addToCart()">＋ Add to Cart</button>
 </div>
 
 <!-- ADMIN PANEL -->
@@ -297,6 +333,31 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
   </div>
 </div>
 
+<!-- CART PANEL -->
+<div class="panel" id="cartPanel">
+  <div class="panel-hdr">
+    <div>
+      <div class="cart-ttl">Your cart</div>
+      <div class="cart-sub" id="cartSubLbl">Review items before issuing</div>
+    </div>
+    <button class="panel-close" onclick="closePanels()">✕</button>
+  </div>
+  <div id="cartBody"></div>
+  <div class="field-lbl" style="margin-top:6px">Your name</div>
+  <input class="name-inp" id="cartNameInp" type="text" placeholder="Optional — helps track issues" autocomplete="off"/>
+  <div class="cart-btn-row">
+    <button class="btn-clear" onclick="clearCart()">Empty</button>
+    <button class="submit" id="checkoutBtn" onclick="checkout()">✓ Check Out</button>
+  </div>
+</div>
+
+<!-- FLOATING CART BUTTON -->
+<button class="cart-fab hidden" id="cartFab" onclick="openCart()">
+  <span class="cart-fab-icon">🛒</span>
+  <span>Cart</span>
+  <span class="cart-fab-count" id="cartFabCount">0</span>
+</button>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -314,6 +375,50 @@ var logOpen = false;
 var adminMode = false;
 var adminName = "";
 var adminEdits = {};  // size -> new absolute qty
+
+// ---- CART ----
+// Cart items persist in localStorage so they survive navigation between shelves.
+// Each entry: { shelfId, shelfLabel, itemId, brand, name, size, qty, category, img }
+var CART_STORAGE_KEY = "ppeCart_v1";
+var CART_NAME_KEY    = "ppeCartName_v1";
+var cart = loadCart();
+
+function loadCart() {
+  try {
+    var raw = localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return [];
+    var parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) { return []; }
+}
+function saveCart() {
+  try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch (e) {}
+}
+
+// How many of (shelfId, itemId, size) are currently reserved in cart?
+function reservedQty(shelfId, itemId, size) {
+  var total = 0;
+  for (var i = 0; i < cart.length; i++) {
+    var c = cart[i];
+    if (c.shelfId === shelfId && c.itemId === itemId && c.size === size) {
+      total += Number(c.qty) || 0;
+    }
+  }
+  return total;
+}
+// Effective stock to display = actual - reserved
+function displayStock(item, size) {
+  var actual = Number(item.sizes[size]) || 0;
+  return Math.max(0, actual - reservedQty(SHELF_ID, item.id, size));
+}
+function displayTotal(item) {
+  var entries = Object.entries(item.sizes);
+  var t = 0;
+  for (var i = 0; i < entries.length; i++) {
+    t += displayStock(item, entries[i][0]);
+  }
+  return t;
+}
 
 function init() {
   var cbName = "ppe_" + Date.now();
@@ -337,7 +442,7 @@ function init() {
   document.head.appendChild(script);
 }
 
-function totalStock(item) { return Object.values(item.sizes).reduce(function(a,b){return a+b;},0); }
+function totalStock(item) { return displayTotal(item); }
 function stockLevel(item) {
   var t = totalStock(item);
   if (t === 0) return "out";
@@ -353,6 +458,17 @@ function render() {
   renderStats();
   renderGrid();
   renderLog();
+  renderCartFab();
+}
+
+function renderCartFab() {
+  var fab = document.getElementById("cartFab");
+  var count = cart.reduce(function(a, c){ return a + (Number(c.qty)||0); }, 0);
+  if (count === 0) { fab.classList.add("hidden"); }
+  else {
+    fab.classList.remove("hidden");
+    document.getElementById("cartFabCount").textContent = count;
+  }
 }
 
 function buildFilters() {
@@ -385,11 +501,13 @@ function renderStats() {
   var out  = items.filter(function(i){return stockLevel(i)==="out";}).length;
   var crit = items.filter(function(i){return stockLevel(i)==="crit";}).length;
   var warn = items.filter(function(i){return stockLevel(i)==="warn";}).length;
+  var cartCount = cart.reduce(function(a, c){ return a + (Number(c.qty)||0); }, 0);
   document.getElementById("statsBar").innerHTML =
     '<div class="stat"><div class="dot dot-ok"></div> ' + items.length + ' item types</div>' +
     (crit ? '<div class="stat"><div class="dot dot-crit"></div> ' + crit + ' low stock</div>' : '') +
     (out  ? '<div class="stat"><div class="dot dot-crit"></div> ' + out + ' out of stock</div>' : '') +
     (warn ? '<div class="stat"><div class="dot dot-warn"></div> ' + warn + ' running low</div>' : '') +
+    (cartCount ? '<div class="stat"><div class="dot dot-ok" style="background:var(--accent2)"></div> ' + cartCount + ' in cart</div>' : '') +
     '<div class="stat"><div class="dot dot-ok"></div> ' + sessionLog.length + ' activity today</div>';
   var badge = document.getElementById("logBadge");
   if (sessionLog.length > 0) { badge.style.display = "inline"; badge.textContent = sessionLog.length; }
@@ -447,19 +565,26 @@ function openIssuePanel(itemId) {
   document.getElementById("pBrand").textContent = activeItem.brand;
   document.getElementById("pName").textContent = activeItem.name;
   document.getElementById("qval").textContent = 1;
-  document.getElementById("nameInp").value = "";
   var submitBtn = document.getElementById("submitBtn");
   submitBtn.disabled = false;
-  submitBtn.innerHTML = "✓ Log Issue";
+  submitBtn.innerHTML = "＋ Add to Cart";
 
   var entries = Object.entries(activeItem.sizes);
   document.getElementById("sizeWrap").innerHTML = entries.map(function(entry) {
-    var sz = entry[0]; var cnt = entry[1]; var oos = cnt === 0;
-    return '<button class="sz' + (oos?" oos":"") + '"' + (oos?' disabled':'') + ' onclick="' + (oos?"":"selectSize(this,'"+escAttr(sz)+"')") + '">' +
-      escHtml(sz) + '<span class="sz-count">' + (cnt===0?"out":cnt+" left") + '</span></button>';
+    var sz = entry[0];
+    var remaining = displayStock(activeItem, sz);
+    var inCart = reservedQty(SHELF_ID, activeItem.id, sz);
+    var oos = remaining === 0;
+    var cls = "sz" + (oos ? " oos" : "") + (inCart > 0 ? " sz-incart" : "");
+    var lbl = inCart > 0 ? (remaining + " left · " + inCart + " in cart") : (remaining === 0 ? "out" : remaining + " left");
+    return '<button class="' + cls + '"' + (oos?' disabled':'') + ' onclick="' + (oos?"":"selectSize(this,'"+escAttr(sz)+"')") + '">' +
+      escHtml(sz) + '<span class="sz-count">' + lbl + '</span></button>';
   }).join("");
 
-  var available = entries.filter(function(e){return e[1]>0;});
+  // Auto-select if only one size is available
+  var available = entries.filter(function(e){
+    return displayStock(activeItem, e[0]) > 0;
+  });
   if (available.length === 1) {
     activeSize = available[0][0];
     var btn = document.querySelector(".sz:not(.oos)");
@@ -478,56 +603,257 @@ function selectSize(btn, sz) {
 }
 
 function changeQty(d) {
-  var max = (activeItem && activeSize) ? (activeItem.sizes[activeSize] || 1) : 20;
+  var max = (activeItem && activeSize) ? (displayStock(activeItem, activeSize) || 1) : 20;
   qty = Math.max(1, Math.min(qty + d, max));
   document.getElementById("qval").textContent = qty;
   if (navigator.vibrate) navigator.vibrate(20);
 }
 
-function submitIssue() {
+function addToCart() {
   if (!activeSize) { toast("Select a size first", true); return; }
-  var avail = activeItem.sizes[activeSize];
-  if (avail < qty) { toast("Only " + avail + " available in size " + activeSize, true); return; }
+  var available = displayStock(activeItem, activeSize);
+  if (available < qty) {
+    toast("Only " + available + " available in size " + activeSize, true);
+    return;
+  }
 
-  var name = document.getElementById("nameInp").value.trim() || "—";
-  var now = new Date();
-  var timeStr = now.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
-
-  var entry = {
-    action:  "logIssue",
-    shelf:   SHELF_ID,
-    itemId:  activeItem.id,
-    itemName:activeItem.brand + " " + activeItem.name,
-    size:    activeSize,
-    qty:     qty,
-    name:    name,
-    time:    timeStr,
-    date:    now.toISOString().slice(0,10)
-  };
-
-  var submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = "Saving…";
-
-  postToSheet(entry, function(resp) {
-    if (resp && resp.ok) {
-      activeItem.sizes[activeSize] -= qty;
-      sessionLog.unshift({ kind:"issue", itemName: entry.itemName, size: activeSize, qty: qty, name: name, time: timeStr });
-      closePanels();
-      renderGrid(); renderStats(); renderLog();
-      if (!logOpen) toggleLog();
-      toast("✓ " + qty + "× " + entry.itemName + " — size " + activeSize);
-      if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-    } else {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = "✓ Log Issue";
-      var msg = resp && resp.error ? resp.error : "Could not reach the server";
-      toast("Failed: " + msg, true);
+  // Check if this (shelf+itemId+size) is already in cart — bump qty instead of duplicating
+  var existingIdx = -1;
+  for (var i = 0; i < cart.length; i++) {
+    if (cart[i].shelfId === SHELF_ID && cart[i].itemId === activeItem.id && cart[i].size === activeSize) {
+      existingIdx = i; break;
     }
-  });
+  }
+  if (existingIdx >= 0) {
+    cart[existingIdx].qty = (Number(cart[existingIdx].qty) || 0) + qty;
+  } else {
+    cart.push({
+      shelfId:    SHELF_ID,
+      shelfLabel: shelfData.label,
+      itemId:     activeItem.id,
+      brand:      activeItem.brand,
+      name:       activeItem.name,
+      category:   activeItem.category || "",
+      img:        activeItem.img || "",
+      size:       activeSize,
+      qty:        qty
+    });
+  }
+  saveCart();
+  closePanels();
+  renderGrid(); renderStats(); renderCartFab();
+  toast("＋ " + qty + "× " + activeItem.brand + " " + activeItem.name + " (size " + activeSize + ")");
+  if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
 }
 
-/* ---------------- ADMIN MODE ---------------- */
+/* ---------------- CART ---------------- */
+
+function openCart() {
+  renderCartPanel();
+  // Restore any previously-saved name
+  var savedName = "";
+  try { savedName = localStorage.getItem(CART_NAME_KEY) || ""; } catch (e) {}
+  document.getElementById("cartNameInp").value = savedName;
+  document.getElementById("cartPanel").classList.add("open");
+  document.getElementById("overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function renderCartPanel() {
+  var body = document.getElementById("cartBody");
+  var checkoutBtn = document.getElementById("checkoutBtn");
+  var subLbl = document.getElementById("cartSubLbl");
+
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty">Your cart is empty.<br>Tap any item on a shelf to add it.</div>';
+    checkoutBtn.disabled = true;
+    subLbl.textContent = "Empty";
+    return;
+  }
+
+  checkoutBtn.disabled = false;
+  checkoutBtn.innerHTML = "✓ Check Out";
+
+  // Group by shelf so user sees where they took things from
+  var byShelf = {};
+  var shelfOrder = [];
+  for (var i = 0; i < cart.length; i++) {
+    var c = cart[i];
+    var key = c.shelfId + "||" + (c.shelfLabel || c.shelfId);
+    if (!byShelf[key]) { byShelf[key] = []; shelfOrder.push(key); }
+    byShelf[key].push({ row: c, idx: i });
+  }
+
+  var totalItems = cart.reduce(function(a, c){ return a + (Number(c.qty)||0); }, 0);
+  var totalLines = cart.length;
+  subLbl.textContent = totalItems + " item" + (totalItems===1?"":"s") + " · " + totalLines + " line" + (totalLines===1?"":"s");
+
+  var html = '';
+  for (var si = 0; si < shelfOrder.length; si++) {
+    var k = shelfOrder[si];
+    var shelfLabel = k.split("||")[1];
+    html += '<div class="field-lbl" style="margin-top:' + (si===0?'0':'14px') + '">From: ' + escHtml(shelfLabel) + '</div>';
+    html += '<div class="cart-list">';
+    var group = byShelf[k];
+    for (var gi = 0; gi < group.length; gi++) {
+      var r = group[gi].row;
+      var idx = group[gi].idx;
+      var catHtml = r.category ? '<span class="cart-row-cat">' + escHtml(r.category) + '</span><br>' : '';
+      html += '<div class="cart-row">' +
+        '<div class="cart-row-main">' + catHtml +
+        '<div class="cart-row-name">' + escHtml(r.brand) + ' ' + escHtml(r.name) + '</div>' +
+        '<div class="cart-row-sub">Size ' + escHtml(r.size) + '</div>' +
+        '</div>' +
+        '<div class="cart-row-ctrls">' +
+          '<button class="cart-qbtn" onclick="changeCartQty(' + idx + ',-1)">−</button>' +
+          '<span class="cart-qval">' + r.qty + '</span>' +
+          '<button class="cart-qbtn" onclick="changeCartQty(' + idx + ',1)">+</button>' +
+          '<button class="cart-remove" onclick="removeFromCart(' + idx + ')" title="Remove">×</button>' +
+        '</div>' +
+      '</div>';
+    }
+    html += '</div>';
+  }
+  html += '<div class="cart-total"><span>Total items</span><span class="cart-total-val">' + totalItems + '</span></div>';
+  body.innerHTML = html;
+}
+
+function changeCartQty(idx, d) {
+  if (idx < 0 || idx >= cart.length) return;
+  var row = cart[idx];
+  var next = (Number(row.qty) || 0) + d;
+  if (next <= 0) { removeFromCart(idx); return; }
+
+  // If increasing, check actual stock is available (on the same shelf we're viewing)
+  if (d > 0 && row.shelfId === SHELF_ID && shelfData) {
+    var item = shelfData.items.find(function(i){return i.id===row.itemId;});
+    if (item) {
+      var remainingIfIncreased = (Number(item.sizes[row.size])||0) - reservedQty(row.shelfId, row.itemId, row.size) - 1;
+      if (remainingIfIncreased < 0) {
+        toast("No more in stock", true);
+        return;
+      }
+    }
+  }
+  row.qty = next;
+  saveCart();
+  renderCartPanel();
+  renderGrid(); renderStats(); renderCartFab();
+  if (navigator.vibrate) navigator.vibrate(15);
+}
+
+function removeFromCart(idx) {
+  if (idx < 0 || idx >= cart.length) return;
+  cart.splice(idx, 1);
+  saveCart();
+  renderCartPanel();
+  renderGrid(); renderStats(); renderCartFab();
+}
+
+function clearCart() {
+  if (cart.length === 0) return;
+  if (!confirm("Empty your cart? All " + cart.length + " line(s) will be removed.")) return;
+  cart = [];
+  saveCart();
+  renderCartPanel();
+  renderGrid(); renderStats(); renderCartFab();
+  toast("Cart emptied");
+}
+
+function checkout() {
+  if (cart.length === 0) { toast("Cart is empty", true); return; }
+  var name = document.getElementById("cartNameInp").value.trim() || "—";
+  try { localStorage.setItem(CART_NAME_KEY, name); } catch (e) {}
+
+  var checkoutBtn = document.getElementById("checkoutBtn");
+  checkoutBtn.disabled = true;
+  checkoutBtn.innerHTML = "Sending… 0/" + cart.length;
+
+  var now = new Date();
+  var dateStr = now.toISOString().slice(0,10);
+  var timeStr = now.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
+
+  // Clone cart; we'll remove items from the real cart only once they've succeeded.
+  var queue = cart.map(function(c, i){ return { row: c, originalIdx: i }; });
+  var successes = [];
+  var failures = [];
+  var total = queue.length;
+  var done = 0;
+
+  function processNext() {
+    if (queue.length === 0) {
+      finishCheckout();
+      return;
+    }
+    var task = queue.shift();
+    var row = task.row;
+    var payload = {
+      action:   "logIssue",
+      shelf:    row.shelfId,
+      itemId:   row.itemId,
+      itemName: row.brand + " " + row.name,
+      size:     row.size,
+      qty:      row.qty,
+      name:     name,
+      time:     timeStr,
+      date:     dateStr
+    };
+    postToSheet(payload, function(resp) {
+      done++;
+      checkoutBtn.innerHTML = "Sending… " + done + "/" + total;
+      if (resp && resp.ok) {
+        successes.push(task);
+        sessionLog.unshift({ kind:"issue", itemName: payload.itemName, size: row.size, qty: row.qty, name: name, time: timeStr });
+      } else {
+        failures.push({ task: task, error: (resp && resp.error) ? resp.error : "Network error" });
+      }
+      processNext();
+    });
+  }
+
+  function finishCheckout() {
+    // Remove successful items from the cart (by matching, since indexes may have shifted)
+    var succKeys = {};
+    for (var i = 0; i < successes.length; i++) {
+      var r = successes[i].row;
+      succKeys[r.shelfId + "||" + r.itemId + "||" + r.size] = true;
+    }
+    cart = cart.filter(function(c) {
+      return !succKeys[c.shelfId + "||" + c.itemId + "||" + c.size];
+    });
+    saveCart();
+
+    // Locally decrement stock for successes on the current shelf so the view is fresh
+    for (var j = 0; j < successes.length; j++) {
+      var s = successes[j].row;
+      if (s.shelfId === SHELF_ID && shelfData) {
+        var it = shelfData.items.find(function(i){return i.id===s.itemId;});
+        if (it && it.sizes[s.size] !== undefined) {
+          it.sizes[s.size] = Math.max(0, it.sizes[s.size] - s.qty);
+        }
+      }
+    }
+
+    checkoutBtn.disabled = false;
+    checkoutBtn.innerHTML = "✓ Check Out";
+
+    renderCartPanel();
+    renderGrid(); renderStats(); renderLog(); renderCartFab();
+
+    if (failures.length === 0) {
+      closePanels();
+      if (!logOpen) toggleLog();
+      toast("✓ Checked out " + successes.length + " line" + (successes.length===1?"":"s"));
+      if (navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 80]);
+    } else if (successes.length === 0) {
+      toast("Failed: " + failures[0].error, true);
+    } else {
+      toast("Checked out " + successes.length + " · " + failures.length + " failed (still in cart)", true);
+    }
+  }
+
+  processNext();
+}
 
 function toggleAdmin() {
   if (adminMode) {
@@ -695,6 +1021,7 @@ function submitAdminCorrections() {
 function closePanels() {
   document.getElementById("issuePanel").classList.remove("open");
   document.getElementById("adminPanel").classList.remove("open");
+  document.getElementById("cartPanel").classList.remove("open");
   document.getElementById("overlay").classList.remove("open");
   document.body.style.overflow = "";
   activeItem = null; activeSize = null; qty = 1; adminEdits = {};
