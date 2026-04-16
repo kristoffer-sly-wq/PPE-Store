@@ -32,14 +32,50 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
   padding: 10px 16px;
   position: sticky; top: 0; z-index: 90;
 }
-.hdr-main { display: flex; justify-content: space-between; align-items: center; }
+.hdr-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .hdr-vessel { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 .hdr-shelf { font-family: var(--cond); font-size: 22px; font-weight: 900; line-height: 1; color: var(--text); }
 .hdr-loc { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 3px; letter-spacing: 0.5px; }
-.hdr-btns { display: flex; gap: 8px; align-items: center; }
-.hdr-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); width: 38px; height: 38px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; }
+.hdr-btns { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+.hdr-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--accent); width: 38px; height: 38px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; flex-shrink: 0; position: relative; }
 .hdr-btn:active { opacity: 0.7; }
 .hdr-btn.admin-on { background: var(--accent); color: #000; border-color: var(--accent); }
+
+/* Back arrow */
+.back-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 8px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; flex-shrink: 0; }
+
+/* ── FLOATING CART BUTTON (bottom-right) ── */
+.cart-fab {
+  display: none;
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--accent); color: #000;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-family: var(--cond); font-size: 16px; font-weight: 900;
+  letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer;
+  align-items: center; gap: 10px;
+  box-shadow: 0 6px 24px rgba(240,165,0,0.45), 0 2px 8px rgba(0,0,0,0.5);
+  z-index: 300;
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: fabIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+.cart-fab.show { display: inline-flex; }
+.cart-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(240,165,0,0.55), 0 2px 8px rgba(0,0,0,0.5); }
+.cart-fab:active { transform: scale(0.95); }
+.cart-fab-icon { font-size: 22px; }
+.cart-fab-count {
+  background: #000; color: var(--accent);
+  border-radius: 12px;
+  padding: 2px 9px;
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  min-width: 24px; text-align: center;
+}
+@keyframes fabIn { from { opacity:0; transform: translateY(16px) scale(.8); } to { opacity:1; transform: translateY(0) scale(1); } }
+@keyframes bump  { 0%,100% { transform: scale(1);} 50% { transform: scale(1.15);} }
+.cart-fab.bump { animation: bump .35s ease; }
 
 /* ADMIN MODE BANNER */
 .admin-banner {
@@ -90,17 +126,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
   display: flex;
   animation: fadeUp .3s ease both;
 }
-.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.10s}
-.card:nth-child(3){animation-delay:.15s}.card:nth-child(4){animation-delay:.20s}
-.card:nth-child(5){animation-delay:.25s}.card:nth-child(6){animation-delay:.30s}
-.card:nth-child(7){animation-delay:.35s}.card:nth-child(8){animation-delay:.40s}
-
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-
 .card:active { transform: scale(0.96); }
 .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(240,165,0,0.1); }
 
-/* Status bar on left edge */
 .card-status-bar { width: 4px; flex-shrink: 0; background: var(--border); border-radius: 10px 0 0 10px; }
 .card.is-ok   .card-status-bar { background: var(--ok); }
 .card.is-warn .card-status-bar { background: var(--warn); }
@@ -116,24 +145,20 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 .badge-warn { background: #e07c3e18; color: var(--warn);  border: 1px solid #e07c3e33; }
 .badge-crit { background: #e03e3e18; color: var(--danger); border: 1px solid #e03e3e33; }
 
-/* CARD IMAGE AREA */
+/* CARD IMAGE */
 .card-img { width: 100%; height: 120px; background: #ffffff; display: flex; align-items: center; justify-content: center; overflow: hidden; margin: 8px 0 0; border-radius: 6px; position: relative; }
 @media (min-width: 800px) { .card-img { height: 160px; } }
 .card-img img { width: 100%; height: 100%; object-fit: contain; padding: 10px; transition: opacity 0.2s; }
 .card-img .emoji-fb { font-size: 52px; }
 
-/* ADMIN CAMERA BUTTON — sits on top-left of the image */
+/* ADMIN CAMERA BUTTON */
 .cam-btn {
   display: none;
-  position: absolute;
-  bottom: 6px; left: 6px;
-  z-index: 10;
+  position: absolute; bottom: 6px; left: 6px; z-index: 10;
   background: rgba(0,0,0,0.72);
   border: 1px solid rgba(240,165,0,0.5);
   color: var(--accent);
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  font-size: 15px;
+  width: 32px; height: 32px; border-radius: 8px; font-size: 15px;
   cursor: pointer;
   align-items: center; justify-content: center;
   backdrop-filter: blur(4px);
@@ -143,7 +168,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--body); min-
 .cam-btn:hover { background: rgba(240,165,0,0.2); }
 body.admin-mode .cam-btn { display: flex; }
 
-/* UPLOAD OVERLAY — shown on the card during upload */
+/* UPLOAD OVERLAY */
 .upload-overlay {
   display: none;
   position: absolute; inset: 0;
@@ -191,7 +216,6 @@ body.admin-mode .cam-btn { display: flex; }
 .panel-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
 .panel-thumb .emoji-fb { font-size: 36px; }
 
-/* Admin: clicking the panel thumb triggers photo upload */
 .panel-thumb-cam {
   display: none;
   position: absolute; inset: 0;
@@ -212,7 +236,6 @@ body.admin-mode .panel-thumb:hover .panel-thumb-cam { opacity: 1; }
 .panel-name { font-family: var(--cond); font-size: 20px; font-weight: 800; line-height: 1.2; }
 .panel-close { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 34px; height: 34px; border-radius: 7px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-/* Admin photo-change button inside panel (below thumb) */
 .panel-cam-btn {
   display: none;
   background: var(--surface2);
@@ -258,18 +281,12 @@ body.admin-mode .panel-cam-btn { display: block; }
 .qbtn:active { background: var(--accent); color: #000; }
 .qval { width: 58px; text-align: center; font-family: var(--mono); font-size: 24px; background: var(--bg); color: var(--text); border: none; border-left: 1px solid var(--border); border-right: 1px solid var(--border); height: 58px; line-height: 58px; pointer-events: none; }
 
-/* NAME INPUT */
-.name-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 14px 14px; border-radius: 8px; font-family: var(--body); font-size: 15px; margin-bottom: 16px; }
-.name-inp:focus { outline: none; border-color: var(--accent); }
-.name-inp::placeholder { color: var(--muted); }
-
-/* SUBMIT */
-.submit { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 10px; font-family: var(--cond); font-size: 19px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: opacity .1s; position: relative; overflow: hidden; }
-.submit:active { opacity: .75; }
-
-/* SUCCESS CHECKMARK ANIMATION */
-.submit-success { display: none; position: absolute; inset: 0; background: var(--ok); align-items: center; justify-content: center; font-size: 28px; font-weight: 900; color: #fff; }
-.submit-success.show { display: flex; animation: popIn .3s ease; }
+/* ADD TO CART button */
+.add-btn { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; border-radius: 10px; font-family: var(--cond); font-size: 19px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: opacity .1s; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.add-btn:active { opacity: .75; }
+.add-btn-icon { font-size: 20px; }
+.add-success { display: none; position: absolute; inset: 0; background: var(--ok); align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 1px; }
+.add-success.show { display: flex; animation: popIn .3s ease; }
 @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* ISSUE LOG */
@@ -301,13 +318,74 @@ body.admin-mode .panel-cam-btn { display: block; }
 
 /* Hidden file input */
 #photoInput { display: none; }
+
+/* ═══ CART DRAWER ═══ */
+.cart-overlay { display:none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 400; backdrop-filter: blur(3px); }
+.cart-overlay.open { display: block; }
+.cart-drawer {
+  display:none;
+  position: fixed; top:0; right:0; bottom:0;
+  width: 100%; max-width: 440px;
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  z-index: 500;
+  flex-direction: column;
+}
+.cart-drawer.open { display:flex; animation: slideL .22s ease; }
+@keyframes slideL { from { transform: translateX(100%);} to { transform: translateX(0);} }
+.cart-hdr {
+  padding: 18px 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cart-hdr-ttl { font-family: var(--cond); font-size: 22px; font-weight: 900; letter-spacing: 1px; }
+.cart-hdr-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-top:2px;}
+.cart-close { background: var(--surface2); border: 1px solid var(--border); color: var(--text); width: 36px; height:36px; border-radius: 8px; font-size: 15px; cursor: pointer;}
+.cart-body { flex:1; overflow-y:auto; padding: 14px 16px; }
+.cart-empty { text-align:center; padding: 50px 20px; font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 1.6; }
+.cart-row {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex; gap: 10px; align-items: center;
+}
+.cart-row-info { flex:1; min-width:0; }
+.cart-row-shelf { font-family: var(--mono); font-size: 9px; color: var(--accent); letter-spacing: 1px; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cart-row-name { font-family: var(--cond); font-size: 15px; font-weight: 700; line-height: 1.15; margin-bottom: 3px; }
+.cart-row-size { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.cart-row-qty { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--accent); margin-right: 8px; flex-shrink:0; }
+.cart-row-rm { background: transparent; border: 1px solid var(--danger); color: var(--danger); border-radius: 7px; padding: 6px 10px; font-family: var(--mono); font-size: 10px; cursor: pointer; flex-shrink:0; }
+.cart-row-rm:active { background: var(--danger); color: #fff; }
+
+.cart-foot { padding: 16px 20px 24px; border-top: 1px solid var(--border); display:flex; flex-direction: column; gap: 10px; }
+.cart-name-inp {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); padding: 12px; border-radius: 8px;
+  font-family: var(--body); font-size: 14px;
+}
+.cart-name-inp:focus { outline:none; border-color: var(--accent); }
+.cart-submit {
+  width: 100%; background: var(--accent); color: #000; border: none;
+  padding: 16px; border-radius: 10px;
+  font-family: var(--cond); font-size: 17px; font-weight: 900;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+}
+.cart-submit:disabled { opacity: .5; cursor: not-allowed; }
+.cart-submit:active { opacity: .75; }
+.cart-clear {
+  width: 100%; background: transparent; border: 1px solid var(--border);
+  color: var(--muted); padding: 10px; border-radius: 8px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1px; cursor: pointer;
+}
+.cart-clear:hover { border-color: var(--danger); color: var(--danger); }
 </style>
 </head>
 <body>
 
 <div class="hdr">
   <div class="hdr-main">
-    <div>
+    <a class="back-btn" href="index.html" title="All shelves">←</a>
+    <div style="flex:1;min-width:0;">
       <div class="hdr-vessel">NORMAND MAXIMUS · PPE STORE</div>
       <div class="hdr-shelf" id="hdrShelf">—</div>
       <div class="hdr-loc" id="hdrLoc">—</div>
@@ -365,7 +443,6 @@ body.admin-mode .panel-cam-btn { display: block; }
     <button class="panel-close" onclick="closePanel()">✕</button>
   </div>
 
-  <!-- Admin photo change button -->
   <button class="panel-cam-btn" onclick="triggerPhotoUpload()">📷 &nbsp;Change Photo</button>
 
   <div class="field-lbl">Select size / variant</div>
@@ -380,13 +457,36 @@ body.admin-mode .panel-cam-btn { display: block; }
     </div>
   </div>
 
-  <div class="field-lbl">Your name</div>
-  <input class="name-inp" id="nameInp" type="text" placeholder="Optional — helps track issues" autocomplete="off"/>
-
-  <button class="submit" id="submitBtn" onclick="submitIssue()">
-    ✓ &nbsp;Log Issue
-    <div class="submit-success" id="successAnim">✓ Logged!</div>
+  <button class="add-btn" id="addBtn" onclick="addToCart()">
+    <span class="add-btn-icon">🛒</span>
+    <span>Add to Cart</span>
+    <div class="add-success" id="addSuccess">✓ Added to Cart</div>
   </button>
+</div>
+
+<!-- FLOATING CART BUTTON (bottom-right) -->
+<button class="cart-fab" id="cartFab" onclick="openCart()">
+  <span class="cart-fab-icon">🛒</span>
+  <span>Cart</span>
+  <span class="cart-fab-count" id="cartFabCount">0</span>
+</button>
+
+<!-- CART DRAWER -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-hdr">
+    <div>
+      <div class="cart-hdr-ttl">🛒 Your Cart</div>
+      <div class="cart-hdr-sub" id="cartSub">0 items</div>
+    </div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-foot" id="cartFoot" style="display:none;">
+    <input class="cart-name-inp" id="cartNameInp" type="text" placeholder="Your name (optional)" autocomplete="off"/>
+    <button class="cart-submit" id="cartSubmitBtn" onclick="submitCart()">✓ Submit All & Update Stock</button>
+    <button class="cart-clear" onclick="clearCartConfirm()">Clear Cart</button>
+  </div>
 </div>
 
 <!-- Hidden file input for photo upload -->
@@ -395,7 +495,7 @@ body.admin-mode .panel-cam-btn { display: block; }
 <div class="toast" id="toast"></div>
 
 <!-- PIN MODAL -->
-<div id="pinOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+<div id="pinOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:600;backdrop-filter:blur(4px);align-items:center;justify-content:center;">
   <div style="background:var(--surface);border:2px solid var(--accent);border-radius:14px;padding:28px 28px;width:290px;text-align:center;">
     <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:16px;">ADMIN ACCESS</div>
     <input id="pinInput" type="password" inputmode="text" placeholder="Enter PIN" autocomplete="off"
@@ -418,10 +518,7 @@ var DEMO_SHELVES = {
   "305-L1-CABINET-AFT": {
     label: "305 L1 CABINET AFT", location: "Main Deck — Port Side Cabinet",
     items: [
-      { id:"L1-01", brand:"TEGERA", name:"873 Gloves", emoji:"🧤", img:"", sizes:{"7":21,"8":16,"9":83,"10":130,"11":18}, min:20 },
-      { id:"L1-02", brand:"RINGER", name:"R-Flex Cut 5 Gloves", emoji:"🧤", img:"", sizes:{"9/M":11,"10/L":21}, min:5 },
-      { id:"L1-03", brand:"UVEX", name:"Safety Glasses Clear", emoji:"🥽", img:"", sizes:{"One size":61}, min:10 },
-      { id:"L1-04", brand:"RW", name:"Safety Specs Amber", emoji:"🥽", img:"", sizes:{"One size":0}, min:10 }
+      { id:"L1-01", brand:"TEGERA", name:"873 Gloves", emoji:"🧤", img:"", sizes:{"7":21,"8":16,"9":83,"10":130,"11":18}, min:20 }
     ]
   }
 };
@@ -435,13 +532,158 @@ var activeFilter = "ALL";
 var logOpen = false;
 var adminMode = false;
 
+// ═══════════════════════════════════════════════════════════════════════════
+// CART — shared across pages via localStorage
+// ═══════════════════════════════════════════════════════════════════════════
+var CART_KEY = "ppe_cart";
+
+function cartGet() {
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
+  catch(e) { return []; }
+}
+function cartSet(arr) {
+  localStorage.setItem(CART_KEY, JSON.stringify(arr));
+  refreshCartBtn();
+}
+function cartCount() {
+  return cartGet().reduce(function(s, e){ return s + (e.qty || 0); }, 0);
+}
+
+function refreshCartBtn() {
+  var fab = document.getElementById("cartFab");
+  var num = document.getElementById("cartFabCount");
+  var c = cartCount();
+  if (c > 0) {
+    var wasShown = fab.classList.contains("show");
+    fab.classList.add("show");
+    num.textContent = c;
+    // Bump animation when count increases
+    if (wasShown) {
+      fab.classList.remove("bump");
+      void fab.offsetWidth; // force reflow to restart animation
+      fab.classList.add("bump");
+    }
+  } else {
+    fab.classList.remove("show");
+  }
+}
+
+window.addEventListener("storage", function(e) {
+  if (e.key === CART_KEY) refreshCartBtn();
+});
+
+function openCart() {
+  renderCart();
+  document.getElementById("cartOverlay").classList.add("open");
+  document.getElementById("cartDrawer").classList.add("open");
+}
+function closeCart() {
+  document.getElementById("cartOverlay").classList.remove("open");
+  document.getElementById("cartDrawer").classList.remove("open");
+}
+function renderCart() {
+  var cart = cartGet();
+  var body = document.getElementById("cartBody");
+  var foot = document.getElementById("cartFoot");
+  var sub = document.getElementById("cartSub");
+  var totalQty = cart.reduce(function(s, e){ return s + e.qty; }, 0);
+  sub.textContent = cart.length === 0 ? "0 items" : (cart.length + " line" + (cart.length!==1?"s":"") + " · " + totalQty + " piece" + (totalQty!==1?"s":""));
+
+  if (cart.length === 0) {
+    body.innerHTML = '<div class="cart-empty">Your cart is empty.<br><br>Tap any item, pick a size &amp; quantity, then press <b>Add to Cart</b>.<br><br>The cart follows you across shelves.</div>';
+    foot.style.display = "none";
+    return;
+  }
+  body.innerHTML = cart.map(function(e, idx) {
+    return '<div class="cart-row">' +
+      '<div class="cart-row-info">' +
+        '<div class="cart-row-shelf">📍 ' + (e.shelfLabel || e.shelf) + '</div>' +
+        '<div class="cart-row-name">' + e.itemName + '</div>' +
+        '<div class="cart-row-size">Size ' + e.size + '</div>' +
+      '</div>' +
+      '<div class="cart-row-qty">×' + e.qty + '</div>' +
+      '<button class="cart-row-rm" onclick="removeCartLine(' + idx + ')">Remove</button>' +
+    '</div>';
+  }).join("");
+  foot.style.display = "flex";
+}
+function removeCartLine(idx) {
+  var cart = cartGet();
+  cart.splice(idx, 1);
+  cartSet(cart);
+  renderCart();
+}
+function clearCartConfirm() {
+  if (!confirm("Clear all " + cartCount() + " items from the cart?")) return;
+  cartSet([]);
+  renderCart();
+  toast("Cart cleared", false, true);
+}
+
+function submitCart() {
+  var cart = cartGet();
+  if (cart.length === 0) return;
+  var name = document.getElementById("cartNameInp").value.trim() || "—";
+  var btn = document.getElementById("cartSubmitBtn");
+  btn.disabled = true;
+  btn.textContent = "Submitting…";
+
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
+  var dateStr = now.toISOString().slice(0,10);
+
+  // Submit each line individually (keeps Apps Script unchanged)
+  var promises = cart.map(function(e) {
+    var payload = {
+      action: "logIssue",
+      shelf: e.shelf, itemId: e.itemId, itemName: e.itemName,
+      size: e.size, qty: e.qty, name: name,
+      time: timeStr, date: dateStr
+    };
+
+    // Also add to this page's session log if it's for the current shelf
+    if (e.shelf === SHELF_ID) {
+      sessionLog.unshift({
+        shelf: e.shelf, itemId: e.itemId, itemName: e.itemName,
+        size: e.size, qty: e.qty, name: name, time: timeStr, date: dateStr
+      });
+      // Reduce in-memory stock so the grid updates instantly
+      if (shelfData) {
+        var item = shelfData.items.find(function(it){ return it.id === e.itemId; });
+        if (item && item.sizes[e.size] !== undefined) {
+          item.sizes[e.size] = Math.max(0, item.sizes[e.size] - e.qty);
+        }
+      }
+    }
+
+    return fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+      .then(function(r){ return r.text(); })
+      .catch(function(){ return null; });
+  });
+
+  Promise.all(promises).then(function() {
+    var n = cart.length;
+    cartSet([]);
+    closeCart();
+    toast("✓ Submitted " + n + " line" + (n!==1?"s":"") + " — stock updated");
+    // Refresh UI
+    if (shelfData) {
+      renderGrid();
+      renderStats();
+      renderLog();
+      if (!logOpen) toggleLog();
+    }
+    btn.disabled = false;
+    btn.textContent = "✓ Submit All & Update Stock";
+  });
+}
+
 // ─── ADMIN MODE ─────────────────────────────────────────────────────────────
 
 var ADMIN_PIN = "LAVR7";
 
 function toggleAdmin() {
   if (adminMode) {
-    // Already on — lock it
     adminMode = false;
     document.body.classList.remove("admin-mode");
     document.getElementById("adminBanner").classList.remove("show");
@@ -450,7 +692,6 @@ function toggleAdmin() {
     btn.classList.remove("admin-on");
     toast("Admin mode OFF", false, true);
   } else {
-    // Show PIN modal
     document.getElementById("pinOverlay").style.display = "flex";
     document.getElementById("pinInput").value = "";
     document.getElementById("pinError").textContent = "";
@@ -483,6 +724,7 @@ function closePinModal() {
 // ─── INIT & DATA ─────────────────────────────────────────────────────────────
 
 function init() {
+  refreshCartBtn();
   var isDemo = (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE");
   if (isDemo) {
     shelfData = DEMO_SHELVES[SHELF_ID] || DEMO_SHELVES["305-L1-CABINET-AFT"];
@@ -607,17 +849,20 @@ function openPanel(itemId) {
   document.getElementById("pBrand").textContent = activeItem.brand;
   document.getElementById("pName").textContent = activeItem.name;
   document.getElementById("qval").textContent = 1;
-  document.getElementById("nameInp").value = "";
-  document.getElementById("successAnim").classList.remove("show");
+  document.getElementById("addSuccess").classList.remove("show");
 
   var entries = Object.entries(activeItem.sizes);
   document.getElementById("sizeWrap").innerHTML = entries.map(function(entry) {
-    var sz = entry[0]; var cnt = entry[1]; var oos = cnt === 0;
+    var sz = entry[0];
+    var cnt = entry[1];
+    var avail = availableAfterCart(activeItem, sz);
+    var oos = avail === 0;
+    var label = cnt === 0 ? "out" : (avail === 0 ? "in cart" : avail + " left");
     return '<button class="sz' + (oos?" oos":"") + '"' + (oos?' disabled':'') + ' onclick="' + (oos?"":"selectSize(this,'"+sz+"')") + '">' +
-      sz + '<span class="sz-count">' + (cnt===0?"out":cnt+" left") + '</span></button>';
+      sz + '<span class="sz-count">' + label + '</span></button>';
   }).join("");
 
-  var available = entries.filter(function(e){return e[1]>0;});
+  var available = entries.filter(function(e){return availableAfterCart(activeItem, e[0]) > 0;});
   if (available.length === 1) {
     activeSize = available[0][0];
     var btn = document.querySelector(".sz:not(.oos)");
@@ -643,49 +888,67 @@ function selectSize(btn, sz) {
 }
 
 function changeQty(d) {
-  var max = (activeItem && activeSize) ? (activeItem.sizes[activeSize] || 1) : 20;
+  var max = (activeItem && activeSize) ? availableAfterCart(activeItem, activeSize) : 20;
+  if (max < 1) max = 1;
   qty = Math.max(1, Math.min(qty + d, max));
   document.getElementById("qval").textContent = qty;
   if (navigator.vibrate) navigator.vibrate(20);
 }
 
-function submitIssue() {
+// How many pieces are actually available for this (item,size), accounting for
+// anything already in the cart for this same line.
+function availableAfterCart(item, size) {
+  var stock = item.sizes[size] || 0;
+  var inCart = cartGet()
+    .filter(function(e){ return e.shelf === SHELF_ID && e.itemId === item.id && e.size === size; })
+    .reduce(function(s, e){ return s + e.qty; }, 0);
+  return Math.max(0, stock - inCart);
+}
+
+// ─── ADD TO CART (replaces the old submitIssue) ──────────────────────────────
+
+function addToCart() {
   if (!activeSize) { toast("Select a size first", true); return; }
-  var avail = activeItem.sizes[activeSize];
-  if (avail < qty) { toast("Only " + avail + " available in size " + activeSize, true); return; }
-
-  var name = document.getElementById("nameInp").value.trim() || "—";
-  var now = new Date();
-  var timeStr = now.toLocaleTimeString("en-GB", {hour:"2-digit",minute:"2-digit"});
-
-  activeItem.sizes[activeSize] -= qty;
-
-  var entry = { shelf: SHELF_ID, itemId: activeItem.id, itemName: activeItem.brand + " " + activeItem.name, size: activeSize, qty: qty, name: name, time: timeStr, date: now.toISOString().slice(0,10) };
-  sessionLog.unshift(entry);
-
-  if (APPS_SCRIPT_URL !== "YOUR_APPS_SCRIPT_URL_HERE") {
-    fetch(APPS_SCRIPT_URL, { method: "POST", body: JSON.stringify(Object.assign({action:"logIssue"}, entry)) }).catch(function(){});
+  var available = availableAfterCart(activeItem, activeSize);
+  if (available < qty) {
+    if (available === 0) {
+      toast("Already reserved in cart — all " + activeItem.sizes[activeSize] + " pcs", true);
+    } else {
+      toast("Only " + available + " more available (rest is in cart)", true);
+    }
+    return;
   }
 
-  var submitBtn = document.getElementById("submitBtn");
-  submitBtn.disabled = true;
-  submitBtn.style.opacity = "0.6";
-  submitBtn.textContent = "Saving...";
+  var cart = cartGet();
 
-  var anim = document.getElementById("successAnim");
+  // Merge into existing line if same shelf + item + size
+  var existing = cart.find(function(e){
+    return e.shelf === SHELF_ID && e.itemId === activeItem.id && e.size === activeSize;
+  });
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    cart.push({
+      shelf: SHELF_ID,
+      shelfLabel: shelfData.label,
+      itemId: activeItem.id,
+      itemName: activeItem.brand + " " + activeItem.name,
+      size: activeSize,
+      qty: qty,
+      addedAt: new Date().toISOString()
+    });
+  }
+  cartSet(cart);
+
+  // Success feedback
+  var anim = document.getElementById("addSuccess");
   anim.classList.add("show");
-  if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+  if (navigator.vibrate) navigator.vibrate([40, 20, 40]);
+  toast(qty + "× " + activeItem.name + " (" + activeSize + ") added to cart");
 
   setTimeout(function() {
-    submitBtn.disabled = false;
-    submitBtn.style.opacity = "";
-    submitBtn.innerHTML = "✓ &nbsp;Log Issue<div class=\"submit-success\" id=\"successAnim\">✓ Logged!</div>";
+    anim.classList.remove("show");
     closePanel();
-    renderGrid();
-    renderStats();
-    renderLog();
-    if (!logOpen) { toggleLog(); }
-    toast(qty + "x " + activeItem.brand + " " + activeItem.name + " — Size " + activeSize);
   }, 700);
 }
 
@@ -693,7 +956,10 @@ function submitIssue() {
 
 function renderLog() {
   var w = document.getElementById("logWrap");
-  if (!sessionLog.length) { w.outerHTML = '<div class="empty-log" id="logWrap">No issues logged yet today</div>'; return; }
+  if (!sessionLog.length) {
+    if (w) { w.outerHTML = '<div class="empty-log" id="logWrap">No issues logged yet today</div>'; }
+    return;
+  }
   var html = '<div class="log-list" id="logWrap">' + sessionLog.map(function(e) {
     return '<div class="log-row"><div><div class="log-item">' + e.itemName + '</div><div class="log-sub">Size ' + e.size + ' · ' + e.name + ' · ' + e.time + '</div></div><div class="log-qty">−' + e.qty + '</div></div>';
   }).join("") + '</div>';
@@ -722,24 +988,18 @@ function toast(msg, err, info) {
 
 // ─── ADMIN PHOTO UPLOAD ──────────────────────────────────────────────────────
 
-var uploadTargetItemId = null;  // which item we're uploading for
+var uploadTargetItemId = null;
 
-/**
- * Called from the camera button on a card (in grid, not panel).
- * Stores the target item id and opens the file picker.
- */
 function triggerCardPhotoUpload(itemId) {
+  if (!adminMode) return;  // Safety: only upload in admin mode
   uploadTargetItemId = itemId;
   var inp = document.getElementById("photoInput");
-  inp.value = ""; // reset so same file can be re-selected
+  inp.value = "";
   inp.click();
 }
 
-/**
- * Called from the "Change Photo" button inside the issue panel.
- * Uses the currently active item.
- */
 function triggerPhotoUpload() {
+  if (!adminMode) return;  // Safety: only upload in admin mode
   if (!activeItem) return;
   uploadTargetItemId = activeItem.id;
   var inp = document.getElementById("photoInput");
@@ -747,18 +1007,12 @@ function triggerPhotoUpload() {
   inp.click();
 }
 
-/**
- * Called when the user picks a file.
- * Uses a Canvas to "flatten" EXIF rotation (iPhone orientation fix),
- * then sends to Apps Script as base64 JPEG.
- */
 function handlePhotoSelected(input) {
   if (!input.files || !input.files[0]) return;
   var file = input.files[0];
   var itemId = uploadTargetItemId;
   if (!itemId) return;
 
-  // Show upload overlay on the card
   setCardUploadState(itemId, true);
 
   var reader = new FileReader();
@@ -766,11 +1020,8 @@ function handlePhotoSelected(input) {
     var dataUrl = e.target.result;
     var img = new Image();
     img.onload = function() {
-      // ── ORIENTATION FIX via Canvas ──
-      // Drawing to canvas physically bakes in the correct orientation,
-      // discarding any EXIF orientation flags. This prevents the
-      // "upside-down iPhone photo" problem.
-      var MAX_SIZE = 1200; // max dimension px — keeps upload fast
+      // Canvas flattens EXIF orientation
+      var MAX_SIZE = 1200;
       var w = img.naturalWidth;
       var h = img.naturalHeight;
       var scale = Math.min(1, MAX_SIZE / Math.max(w, h));
@@ -783,9 +1034,7 @@ function handlePhotoSelected(input) {
       var ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0, cw, ch);
 
-      // Quality 0.82 JPEG — good balance of size vs clarity
       var base64 = canvas.toDataURL("image/jpeg", 0.82);
-
       sendPhotoToAppsScript(itemId, base64);
     };
     img.onerror = function() {
@@ -801,12 +1050,8 @@ function handlePhotoSelected(input) {
   reader.readAsDataURL(file);
 }
 
-/**
- * POSTs the base64 image to Apps Script, then updates the UI on success.
- */
 function sendPhotoToAppsScript(itemId, base64Data) {
   if (APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE") {
-    // Demo mode: just update the UI locally with the canvas data
     handleUploadSuccess(itemId, base64Data);
     return;
   }
@@ -820,9 +1065,7 @@ function sendPhotoToAppsScript(itemId, base64Data) {
     })
   })
   .then(function(res) {
-    // Read as text first — if Apps Script returns an auth error page it won't be JSON
     return res.text().then(function(text) {
-      // Check for OAuth/auth error in the response body
       if (text.indexOf('googleapis.com/auth') !== -1 || text.indexOf('ScriptError') !== -1) {
         throw new Error('auth');
       }
@@ -832,7 +1075,6 @@ function sendPhotoToAppsScript(itemId, base64Data) {
   })
   .then(function(data) {
     if (data.error) { throw new Error(data.error); }
-    // Apps Script returns the Drive thumbnail URL
     handleUploadSuccess(itemId, data.url);
   })
   .catch(function(err) {
@@ -845,16 +1087,10 @@ function sendPhotoToAppsScript(itemId, base64Data) {
   });
 }
 
-/**
- * Called after a successful upload.
- * Updates the in-memory item data and refreshes both the card and the panel thumb.
- */
 function handleUploadSuccess(itemId, newUrl) {
-  // 1. Update in-memory shelf data
   var item = shelfData.items.find(function(i){ return i.id === itemId; });
   if (item) { item.img = newUrl; }
 
-  // 2. Update the card image in the grid (without re-rendering the entire grid)
   var cardImg = document.getElementById("cardimg-" + itemId);
   var cardEmoji = document.getElementById("cardemoji-" + itemId);
   if (cardImg) {
@@ -862,14 +1098,11 @@ function handleUploadSuccess(itemId, newUrl) {
     cardImg.style.display = "block";
     if (cardEmoji) { cardEmoji.style.display = "none"; }
   } else {
-    // Card might have had only an emoji (no img element yet) — re-render the grid
     renderGrid();
   }
 
-  // 3. Hide the upload overlay
   setCardUploadState(itemId, false);
 
-  // 4. Update the panel thumbnail if the panel is open for this item
   if (activeItem && activeItem.id === itemId) {
     var pImg = document.getElementById("pThumbImg");
     var pEmoji = document.getElementById("pThumbEmoji");
@@ -878,14 +1111,10 @@ function handleUploadSuccess(itemId, newUrl) {
     if (pEmoji) { pEmoji.style.display = "none"; }
   }
 
-  // 5. Haptic feedback + toast
   if (navigator.vibrate) { navigator.vibrate([30, 20, 60]); }
   toast("✓ Photo Updated Successfully");
 }
 
-/**
- * Shows or hides the upload overlay on a specific card's image area.
- */
 function setCardUploadState(itemId, uploading) {
   var overlay = document.getElementById("overlay-" + itemId);
   if (overlay) {
