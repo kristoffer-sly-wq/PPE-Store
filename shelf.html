@@ -90,8 +90,14 @@ body {
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding: 0 12px;
+  gap: 14px;
+  padding: 0 16px;
+}
+@media (min-width: 800px) {
+  .grid { grid-template-columns: repeat(3, 1fr); padding: 0 24px; gap: 18px; }
+}
+@media (min-width: 1200px) {
+  .grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 .card {
@@ -139,6 +145,9 @@ body {
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
+@media (min-width: 800px) {
+  .card-img { height: 160px; }
+}
 .card-img img {
   width: 100%; height: 100%;
   object-fit: contain; padding: 10px;
@@ -155,6 +164,11 @@ body {
 .card-name {
   font-family: var(--cond); font-size: 14px; font-weight: 700;
   line-height: 1.2; margin-bottom: 4px;
+}
+@media (min-width: 800px) {
+  .card-name { font-size: 18px; }
+  .card-brand { font-size: 11px; }
+  .card-stock { font-size: 12px; }
 }
 .card-stock {
   font-family: var(--mono); font-size: 10px; color: var(--muted);
@@ -178,6 +192,22 @@ body {
   padding: 16px 16px 32px;
   z-index: 200;
   max-height: 88vh; overflow-y: auto;
+}
+@media (min-width: 800px) {
+  .panel {
+    left: 50%; right: auto;
+    transform: translateX(-50%);
+    width: 600px;
+    border-radius: 16px 16px 0 0;
+    padding: 24px 32px 40px;
+  }
+  .panel.open { display: block; }
+  .sz { padding: 14px 24px; font-size: 18px; }
+  .sz-count { font-size: 13px; }
+  .panel-name { font-size: 22px; }
+  .submit { font-size: 20px; padding: 18px; }
+  .field-lbl { font-size: 12px; }
+  .name-inp { font-size: 16px; padding: 14px; }
 }
 .panel.open {
   display: block;
@@ -223,8 +253,8 @@ body {
 .size-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
 .sz {
   background: var(--surface2); border: 1px solid var(--border);
-  color: var(--text); padding: 6px 12px; border-radius: 7px;
-  font-family: var(--mono); font-size: 12px; cursor: pointer;
+  color: var(--text); padding: 12px 20px; border-radius: 7px;
+  font-family: var(--mono); font-size: 16px; cursor: pointer;
   transition: all .1s; position: relative;
 }
 .sz:hover, .sz.active {
@@ -236,8 +266,8 @@ body {
   text-decoration: line-through;
 }
 .sz-count {
-  font-size: 9px; color: var(--muted);
-  display: block; text-align: center; margin-top: 1px;
+  font-size: 12px; color: var(--muted);
+  display: block; text-align: center; margin-top: 3px;
 }
 .sz.active .sz-count { color: #0007; }
 
