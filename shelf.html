@@ -1376,11 +1376,17 @@ function sendPhotoToAppsScript(itemId, base64Data) {
   })
   .then(function(res) {
     return res.text().then(function(text) {
-      if (text.indexOf('googleapis.com/auth') !== -1 || text.indexOf('ScriptError') !== -1) {
-        throw new Error('auth');
+      // Try parsing as JSON FIRST — a valid JSON response means the upload worked,
+      // even if the response text happens to contain "googleapis.com/auth" in a URL.
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        // Only non-JSON responses are treated as error pages.
+        if (text.indexOf('googleapis.com/auth') !== -1 || text.indexOf('ScriptError') !== -1) {
+          throw new Error('auth');
+        }
+        throw new Error('bad response');
       }
-      try { return JSON.parse(text); }
-      catch(e) { throw new Error('bad response'); }
     });
   })
   .then(function(data) {
