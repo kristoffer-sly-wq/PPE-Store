@@ -400,6 +400,9 @@ body.admin-mode .cart-fab,
 body.admin-mode .cart-overlay,
 body.admin-mode .cart-drawer { display: none !important; }
 
+/* Hide the FAB while the product panel is open — prevents it overlapping the Add-to-Cart button */
+#issuePanel.open ~ .cart-fab { display: none !important; }
+
 .admin-stock-wrap .field-lbl { margin-top: 4px; margin-bottom: 12px; }
 .admin-size-row {
   display: grid; grid-template-columns: 60px 1fr auto; gap: 10px;
